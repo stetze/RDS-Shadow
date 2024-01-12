@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "RDS-Shadow (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "RDS-Shadow (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}
