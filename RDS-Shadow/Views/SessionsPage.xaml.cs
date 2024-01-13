@@ -239,6 +239,12 @@ public sealed partial class SessionsPage : Page
         }
     }
 
+    //private void SendMessageToAllUser_Click(object sender, RoutedEventArgs e)
+    //{
+    //        // Öffnen Sie das Flyout für die Nachrichteneingabe
+    //        messageAllFlyout.ShowAt(shadowingView, new FlyoutShowOptions { Placement = FlyoutPlacementMode.Full });  
+    //}
+
     private void SendButton_Click(object sender, RoutedEventArgs e)
     {
         if (shadowingView.SelectedItem is MyDataClass selectedRow)
@@ -267,4 +273,39 @@ public sealed partial class SessionsPage : Page
         }
     }
 
+    //private void SendAllButton_Click(object sender, RoutedEventArgs e)
+    //{
+    //    try
+    //    {
+    //        string messageToAllUsers = messageAllTextBox.Text;
+
+
+
+    //        // Get unique server names from MyData
+    //        var uniqueServers = MyData.Select(user => user.ServerName).Distinct();
+
+    //        foreach (var serverName in uniqueServers)
+    //        {
+    //            // Construct the command to send a message to all sessions on the current server
+    //            ProcessStartInfo psi = new ProcessStartInfo
+    //            {
+    //                FileName = "msg",
+    //                Arguments = $"* /server:{serverName} {messageToAllUsers}",
+    //                CreateNoWindow = true,
+    //                UseShellExecute = false
+    //            };
+
+    //            // Use Process.Start to execute the "msg" command for each server
+    //            Process.Start(psi);
+    //        }
+
+    //        // Close the Flyout after sending the messages
+    //        messageAllFlyout.Hide();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        // Handle exceptions when executing the msg command
+    //        MyData.Add(new MyDataClass("Error", $"Error sending message to all users: {ex.Message}", "", 0));
+    //    }
+    //}
 }

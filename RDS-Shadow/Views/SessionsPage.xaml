@@ -23,6 +23,16 @@
                 </ToolTipService.ToolTip>
             </Button>
             <TextBox Width="275" Margin="10,0,0,0" PlaceholderText="Filtertext eingeben" Name="filterUsername" TextChanged="filterUsername_TextChanged" />
+            <!--<Button Margin="10,0,0,0" Name="sendMessageToAllUser" Click="SendMessageToAllUser_Click">Nachricht an Alle senden
+                <Button.Flyout>
+                    <Flyout x:Name="messageAllFlyout" Placement="Full">
+                        <Grid>
+                            <TextBox x:Name="messageAllTextBox" Width="250" Height="400" TextWrapping="Wrap" AcceptsReturn="True"/>
+                            <Button Content="Senden" Click="SendAllButton_Click"/>
+                        </Grid>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>-->
         </StackPanel>
 
         <controls:DataGrid x:Name="shadowingView" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{x:Bind MyData}" CanUserSortColumns="True" Sorting="shadowingView_Sorting" IsReadOnly="True" DoubleTapped="DataGrid_DoubleTapped" RightTapped="DataGrid_RightTapped">
