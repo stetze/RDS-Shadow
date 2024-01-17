@@ -44,12 +44,20 @@
             </controls:DataGrid.ContextFlyout>
             <FlyoutBase.AttachedFlyout>
                 <Flyout x:Name="messageFlyout" Placement="Full">
-                    <Grid>
-                        <TextBox x:Name="messageTextBox" Width="250" Height="400" TextWrapping="Wrap" AcceptsReturn="True"/>
-                        <Button Content="Senden" Click="SendButton_Click"/>
-                    </Grid>
+                    <Flyout.FlyoutPresenterStyle>
+                        <Style TargetType="FlyoutPresenter">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <!-- Optional: Setze MaxHeight, um die maximale Höhe zu begrenzen -->
+                            <Setter Property="MaxHeight" Value="400"/>
+                        </Style>
+                    </Flyout.FlyoutPresenterStyle>
+                    <StackPanel>
+                        <TextBox x:Name="messageTextBox" TextWrapping="Wrap" AcceptsReturn="True" Width="350" Height="320"/>
+                        <Button Content="Senden" Click="SendButton_Click" Margin="0,10,0,0" />
+                    </StackPanel>
                 </Flyout>
             </FlyoutBase.AttachedFlyout>
+
             <!--<controls:DataGrid.ColumnHeaderStyle>
                 <Style TargetType="wctprimitives:DataGridColumnHeader">
                     <Setter Property="Template">
