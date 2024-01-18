@@ -12,14 +12,14 @@
 
   <Identity
     Name="02693662-383d-4508-8f56-0c9767026f29"
-    Publisher="CN=Daniel.Stetzenbach"
+    Publisher="CN=D59F340D-0444-48EF-A755-9C19D91350BA"
     Version="1.0.0.0" />
     
   <mp:PhoneIdentity PhoneProductId="02693662-383d-4508-8f56-0c9767026f29" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
     
   <Properties>
     <DisplayName>RDS-Shadow</DisplayName>
-    <PublisherDisplayName>Daniel.Stetzenbach</PublisherDisplayName>
+    <PublisherDisplayName>RDS-Shadow</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -37,8 +37,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="ms-resource:AppDisplayName"
-        Description="ms-resource:AppDescription"
+        DisplayName="63273stetze.RDS-Shadow"
+        Description="Ermöglicht Ihnen die Fernsteuerung einer aktiven Sitzung eines anderen Benutzers auf einem Remotedesktop-Sitzungshost-Server ohne Administratorrechte via mstsc /shadow."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

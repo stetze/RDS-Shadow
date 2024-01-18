@@ -151,7 +151,7 @@
     <value>Privacy Statement</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
-    <value>https://stetze.eu/de/datenschutz</value>
+    <value>https://stetze.eu/de/rds-shadow</value>
   </data>
   <data name="Settings_Database.Text" xml:space="preserve">
     <value>Database settings</value>
