@@ -151,7 +151,7 @@
     <value>Datenschutz</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
-    <value>https://stetze.eu/de/rds-shadow</value>
+    <value>https://github.com/stetze/RDS-Shadow/wiki/Privacy-Policy</value>
   </data>
   <data name="Settings_Database.Text" xml:space="preserve">
     <value>Datenbank-Einstellungen</value>
