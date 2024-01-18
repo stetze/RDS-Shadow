@@ -11,9 +11,9 @@
   IgnorableNamespaces="uap rescap genTemplate">
 
   <Identity
-    Name="02693662-383d-4508-8f56-0c9767026f29"
+    Name="63273stetze.RDS-Shadow"
     Publisher="CN=D59F340D-0444-48EF-A755-9C19D91350BA"
-    Version="1.0.0.0" />
+    Version="1.0.4.0" />
     
   <mp:PhoneIdentity PhoneProductId="02693662-383d-4508-8f56-0c9767026f29" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
     
@@ -37,12 +37,11 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="63273stetze.RDS-Shadow"
         Description="Ermöglicht Ihnen die Fernsteuerung einer aktiven Sitzung eines anderen Benutzers auf einem Remotedesktop-Sitzungshost-Server ohne Administratorrechte via mstsc /shadow."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+        Square44x44Logo="Assets\Square44x44Logo.png" DisplayName="RDS-Shadow">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"  Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
