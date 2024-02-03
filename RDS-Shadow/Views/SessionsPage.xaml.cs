@@ -185,24 +185,29 @@ public sealed partial class SessionsPage : Page
     private void DataGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
         var grid = (DataGrid)sender;
-        var clickedRow = (MyDataClass)((FrameworkElement)e.OriginalSource).DataContext;
+        var originalSource = e.OriginalSource as FrameworkElement;
 
-        // Setzen Sie die Auswahl manuell
-        grid.SelectedItem = clickedRow;
+        // Überprüfen Sie, ob der Rechtsklick auf einer Zeile erfolgt
+        if (originalSource != null && originalSource.DataContext is MyDataClass clickedRow)
+        {
+            // Setzen Sie die Auswahl manuell
+            grid.SelectedItem = clickedRow;
 
-        // Zeigen Sie das Kontextmenü an
-        var menu = new MenuFlyout();
-        var abmeldenItem = new MenuFlyoutItem { Text = "Abmelden" };
-        abmeldenItem.Click += Abmelden_Click;
-        menu.Items.Add(abmeldenItem);
+            // Zeigen Sie das Kontextmenü an
+            var menu = new MenuFlyout();
+            var abmeldenItem = new MenuFlyoutItem { Text = "Abmelden" };
+            abmeldenItem.Click += Abmelden_Click;
+            menu.Items.Add(abmeldenItem);
 
-        var SendMessageToUserItem = new MenuFlyoutItem { Text = "Nachricht senden" };
-        SendMessageToUserItem.Click += SendMessageToUser_Click;
-        menu.Items.Add(SendMessageToUserItem);
+            var SendMessageToUserItem = new MenuFlyoutItem { Text = "Nachricht senden" };
+            SendMessageToUserItem.Click += SendMessageToUser_Click;
+            menu.Items.Add(SendMessageToUserItem);
 
-        menu.ShowAt(grid, e.GetPosition(grid));
-        e.Handled = true;
+            menu.ShowAt(grid, e.GetPosition(grid));
+            e.Handled = true;
+        }
     }
+
 
     private void Abmelden_Click(object sender, RoutedEventArgs e)
     {
