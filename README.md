@@ -2,7 +2,7 @@
 
 <h1 align="center">
   <br>
-  <a href="https://github.com/stetze/RDS-Shadow><img src="RDS-Shadow/Assets/Wide310x150Logo.scale-100.png" alt="Logo" ="200"></a>
+  <a href="https://github.com/stetze/RDS-Shadow"><img src="RDS-Shadow/Assets/Wide310x150Logo.scale-100.png" alt="Logo" ="200"></a>
   <br>
   RDS-Shadow
   <br>
