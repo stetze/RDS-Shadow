@@ -50,6 +50,10 @@ ALTER ROLE db_datareader ADD MEMBER [Domain\RDS-Shadow]
 wmic /namespace:\\root\CIMV2\TerminalServices PATH Win32_TSPermissionsSetting WHERE (TerminalName ="RDP-Tcp") CALL AddAccount "domain\rds-shadow",2
 ```
 
+<a href="https://apps.microsoft.com/detail/9nlqv1vwwclc?hl=de-de&gl=DE?mode=direct“>
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
