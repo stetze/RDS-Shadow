@@ -1,4 +1,5 @@
 [![Stargazers][stars-shield]][stars-url]
+[![MIT License][license-shield]][license-url]
 
 <h1 align="center">
   <br>
@@ -60,3 +61,5 @@ wmic /namespace:\\root\CIMV2\TerminalServices PATH Win32_TSPermissionsSetting WH
 
 [stars-shield]: https://img.shields.io/github/stars/stetze/RDS-Shadow.svg?style=for-the-badge
 [stars-url]: https://github.com/stetze/RDS-Shadow/stargazers
+[license-shield]: https://img.shields.io/github/license/stetze/RDS-Shadow.svg?style=for-the-badge
+[license-url]: https://github.com/stetze/RDS-Shadow/blob/master/LICENSE.txt
