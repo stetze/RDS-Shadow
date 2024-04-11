@@ -1,7 +1,7 @@
 [![Stargazers][stars-shield]][stars-url]
 <!-- PROJECT LOGO -->
 <br />
-<div align="center">
+<div>
   <a href="https://github.com/stetze/RDS-Shadow">
     <img src="RDS-Shadow/Assets/Wide310x150Logo.scale-100.png" alt="Logo" width="80>
   </a>
