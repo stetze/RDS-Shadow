@@ -1,3 +1,4 @@
+[![Stargazers][stars-shield]][stars-url]
 # RDS-Shadow
 Made with <a href="https://github.com/microsoft/TemplateStudio">Microsoft Template Studio</a>
 
@@ -40,3 +41,9 @@ ALTER ROLE db_datareader ADD MEMBER [Domain\RDS-Shadow]
 ```
 wmic /namespace:\\root\CIMV2\TerminalServices PATH Win32_TSPermissionsSetting WHERE (TerminalName ="RDP-Tcp") CALL AddAccount "domain\rds-shadow",2
 ```
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[stars-shield]: https://img.shields.io/github/stars/stetze/RDS-Shadow.svg?style=for-the-badge
+[stars-url]: https://github.com/stetze/RDS-Shadow/stargazers
