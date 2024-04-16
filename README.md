@@ -56,7 +56,7 @@ wmic /namespace:\\root\CIMV2\TerminalServices PATH Win32_TSPermissionsSetting WH
 	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
 </a>
 
-or install via winget "winget install 9NLQV1VWWCLC -s msstore"
+or installation via winget "winget install 9NLQV1VWWCLC -s msstore"
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
