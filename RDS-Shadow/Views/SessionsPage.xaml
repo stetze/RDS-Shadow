@@ -23,16 +23,39 @@
                 </ToolTipService.ToolTip>
             </Button>
             <TextBox Width="275" Margin="10,0,0,0" PlaceholderText="Filtertext eingeben" Name="filterUsername" TextChanged="filterUsername_TextChanged" />
-            <!--<Button Margin="10,0,0,0" Name="sendMessageToAllUser" Click="SendMessageToAllUser_Click">Nachricht an Alle senden
+            <Button Margin="10,0,0,0" Name="sendMessageToAllUser">
+                <Button.Content>
+                    <FontIcon Glyph="&#xE8BD;" />
+                </Button.Content>
+                <ToolTipService.ToolTip>
+                    <ToolTip Content="Nachricht an Alle Benutzer senden"></ToolTip>
+                </ToolTipService.ToolTip>
                 <Button.Flyout>
                     <Flyout x:Name="messageAllFlyout" Placement="Full">
-                        <Grid>
-                            <TextBox x:Name="messageAllTextBox" Width="250" Height="400" TextWrapping="Wrap" AcceptsReturn="True"/>
-                            <Button Content="Senden" Click="SendAllButton_Click"/>
-                        </Grid>
+                        <Flyout.FlyoutPresenterStyle>
+                            <Style TargetType="FlyoutPresenter">
+                                <Setter Property="MinWidth" Value="400"/>
+                                <Setter Property="Padding" Value="20"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="CornerRadius" Value="10"/>
+                                <Setter Property="Shadow">
+                                    <Setter.Value>
+                                        <ThemeShadow />
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Flyout.FlyoutPresenterStyle>
+
+                        <StackPanel Spacing="20">
+                            <TextBlock Text="Nachricht an alle Benutzer" FontWeight="Bold" FontSize="18" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Die Nachricht wird mit dem aktuell angemeldeten Benutzer verschickt" FontWeight="Thin" FontSize="14" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="und auch so auf dem Server angezeigt." FontWeight="Thin" FontSize="14" />
+                            <TextBox x:Name="messageAllTextBox" TextWrapping="Wrap" AcceptsReturn="True" Height="200" PlaceholderText="Nachricht hier eingeben..." />
+                            <Button Content="Senden" Click="SendAllButton_Click" HorizontalAlignment="Right" />
+                        </StackPanel>
                     </Flyout>
                 </Button.Flyout>
-            </Button>-->
+            </Button>
         </StackPanel>
 
         <controls:DataGrid x:Name="shadowingView" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{x:Bind MyData}" CanUserSortColumns="True" Sorting="shadowingView_Sorting" IsReadOnly="True" DoubleTapped="DataGrid_DoubleTapped" RightTapped="DataGrid_RightTapped">
@@ -57,18 +80,6 @@
                     </StackPanel>
                 </Flyout>
             </FlyoutBase.AttachedFlyout>
-
-            <!--<controls:DataGrid.ColumnHeaderStyle>
-                <Style TargetType="wctprimitives:DataGridColumnHeader">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="wctprimitives:DataGridColumnHeader">
-                                <ContentPresenter Background="LightGray" FontWeight="Bold" BorderBrush="LightBlue" BorderThickness="0,0,0,0" />
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>-->
-            <!--</controls:DataGrid.ColumnHeaderStyle>-->
             <controls:DataGrid.Columns>
                 <controls:DataGridTextColumn Header="Username" Binding="{Binding Username}" />
                 <controls:DataGridTextColumn Header="PoolName" Binding="{Binding PoolName}" />

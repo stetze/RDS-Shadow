@@ -278,39 +278,42 @@ public sealed partial class SessionsPage : Page
         }
     }
 
-    //private void SendAllButton_Click(object sender, RoutedEventArgs e)
-    //{
-    //    try
-    //    {
-    //        string messageToAllUsers = messageAllTextBox.Text;
+    private void SendAllButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            string messageToAllUsers = messageAllTextBox.Text;
 
+            foreach (var user in MyData)
+            {
+                try
+                {
+                    // Nachricht an die spezifische Sitzung auf dem Server senden
+                    ProcessStartInfo psi = new ProcessStartInfo
+                    {
+                        FileName = "msg",
+                        Arguments = $"{user.SessionId} /server:{user.ServerName} {messageToAllUsers}",
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    };
 
+                    // Führen Sie den Befehl aus
+                    Process.Start(psi);
+                }
+                catch (Exception ex)
+                {
+                    // Fehlerbehandlung für jede einzelne Nachricht
+                    MyData.Add(new MyDataClass("Error", $"Fehler beim Senden der Nachricht an {user.Username} auf Server {user.ServerName}: {ex.Message}", "", 0));
+                }
+            }
 
-    //        // Get unique server names from MyData
-    //        var uniqueServers = MyData.Select(user => user.ServerName).Distinct();
-
-    //        foreach (var serverName in uniqueServers)
-    //        {
-    //            // Construct the command to send a message to all sessions on the current server
-    //            ProcessStartInfo psi = new ProcessStartInfo
-    //            {
-    //                FileName = "msg",
-    //                Arguments = $"* /server:{serverName} {messageToAllUsers}",
-    //                CreateNoWindow = true,
-    //                UseShellExecute = false
-    //            };
-
-    //            // Use Process.Start to execute the "msg" command for each server
-    //            Process.Start(psi);
-    //        }
-
-    //        // Close the Flyout after sending the messages
-    //        messageAllFlyout.Hide();
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        // Handle exceptions when executing the msg command
-    //        MyData.Add(new MyDataClass("Error", $"Error sending message to all users: {ex.Message}", "", 0));
-    //    }
-    //}
+            // Schließen Sie das Flyout nach dem Senden der Nachrichten
+            messageAllFlyout.Hide();
+        }
+        catch (Exception ex)
+        {
+            // Fehlerbehandlung für die gesamte Operation
+            MyData.Add(new MyDataClass("Error", $"Fehler beim Senden der Nachricht an alle Benutzer: {ex.Message}", "", 0));
+        }
+    }
 }
