@@ -28,7 +28,7 @@
                     <FontIcon Glyph="&#xE8BD;" />
                 </Button.Content>
                 <ToolTipService.ToolTip>
-                    <ToolTip Content="Nachricht an Alle Benutzer senden"></ToolTip>
+                    <ToolTip Content="Nachricht an aktuelle Benutzer senden"></ToolTip>
                 </ToolTipService.ToolTip>
                 <Button.Flyout>
                     <Flyout x:Name="messageAllFlyout" Placement="Full">
@@ -47,9 +47,7 @@
                         </Flyout.FlyoutPresenterStyle>
 
                         <StackPanel Spacing="20">
-                            <TextBlock Text="Nachricht an alle Benutzer" FontWeight="Bold" FontSize="18" />
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Die Nachricht wird mit dem aktuell angemeldeten Benutzer verschickt" FontWeight="Thin" FontSize="14" />
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="und auch so auf dem Server angezeigt." FontWeight="Thin" FontSize="14" />
+                            <TextBlock Text="Nachricht an aktuelle Benutzer" FontWeight="Bold" FontSize="18" />
                             <TextBox x:Name="messageAllTextBox" TextWrapping="Wrap" AcceptsReturn="True" Height="200" PlaceholderText="Nachricht hier eingeben..." />
                             <Button Content="Senden" Click="SendAllButton_Click" HorizontalAlignment="Right" />
                         </StackPanel>

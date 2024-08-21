@@ -135,9 +135,6 @@ public sealed partial class SessionsPage : Page
             }
         }
     }
-
-    //private readonly ObservableCollection<MyDataClass>? originalData; // Variable zum Speichern des ursprünglichen Datensatzes
-
     private void filterUsername_TextChanged(object sender, TextChangedEventArgs e)
     {
         ApplyFilter();
@@ -243,13 +240,6 @@ public sealed partial class SessionsPage : Page
             messageFlyout.ShowAt(shadowingView, new FlyoutShowOptions { Placement = FlyoutPlacementMode.Full });
         }
     }
-
-    //private void SendMessageToAllUser_Click(object sender, RoutedEventArgs e)
-    //{
-    //        // Öffnen Sie das Flyout für die Nachrichteneingabe
-    //        messageAllFlyout.ShowAt(shadowingView, new FlyoutShowOptions { Placement = FlyoutPlacementMode.Full });  
-    //}
-
     private void SendButton_Click(object sender, RoutedEventArgs e)
     {
         if (shadowingView.SelectedItem is MyDataClass selectedRow)
@@ -280,31 +270,46 @@ public sealed partial class SessionsPage : Page
 
     private void SendAllButton_Click(object sender, RoutedEventArgs e)
     {
+        // Stellen Sie sicher, dass die Liste vor dem Senden aktualisiert wird
+        PopulateList(firstTime: true);
+        ApplyFilter();  // Wenden Sie den aktuellen Filter an, um sicherzustellen, dass die gefilterte Liste aktuell ist
+
         try
         {
             string messageToAllUsers = messageAllTextBox.Text;
 
-            foreach (var user in MyData)
-            {
-                try
-                {
-                    // Nachricht an die spezifische Sitzung auf dem Server senden
-                    ProcessStartInfo psi = new ProcessStartInfo
-                    {
-                        FileName = "msg",
-                        Arguments = $"{user.SessionId} /server:{user.ServerName} {messageToAllUsers}",
-                        CreateNoWindow = true,
-                        UseShellExecute = false
-                    };
+            // Verwenden Sie die aktuell angezeigte (gefilterte) Liste
+            var filteredData = shadowingView.ItemsSource as ObservableCollection<MyDataClass>;
 
-                    // Führen Sie den Befehl aus
-                    Process.Start(psi);
-                }
-                catch (Exception ex)
+            // Überprüfen Sie, ob filteredData nicht null ist, bevor Sie fortfahren
+            if (filteredData != null)
+            {
+                foreach (var user in filteredData)
                 {
-                    // Fehlerbehandlung für jede einzelne Nachricht
-                    MyData.Add(new MyDataClass("Error", $"Fehler beim Senden der Nachricht an {user.Username} auf Server {user.ServerName}: {ex.Message}", "", 0));
+                    try
+                    {
+                        // Nachricht an die spezifische Sitzung auf dem Server senden
+                        ProcessStartInfo psi = new ProcessStartInfo
+                        {
+                            FileName = "msg",
+                            Arguments = $"{user.SessionId} /server:{user.ServerName} {messageToAllUsers}",
+                            CreateNoWindow = true,
+                            UseShellExecute = false
+                        };
+
+                        // Führen Sie den Befehl aus
+                        Process.Start(psi);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Fehlerbehandlung für jede einzelne Nachricht
+                        MyData.Add(new MyDataClass("Error", $"Fehler beim Senden der Nachricht an {user.Username} auf Server {user.ServerName}: {ex.Message}", "", 0));
+                    }
                 }
+            }
+            else
+            {
+                MyData.Add(new MyDataClass("Warnung", "Es sind keine Benutzer in der aktuellen Ansicht.", "", 0));
             }
 
             // Schließen Sie das Flyout nach dem Senden der Nachrichten
