@@ -4,7 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:controls_legacy="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d" >
 
     <Grid>
@@ -56,13 +57,13 @@
             </Button>
         </StackPanel>
 
-        <controls:DataGrid x:Name="shadowingView" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{x:Bind MyData}" CanUserSortColumns="True" Sorting="shadowingView_Sorting" IsReadOnly="True" DoubleTapped="DataGrid_DoubleTapped" RightTapped="DataGrid_RightTapped">
-            <controls:DataGrid.ContextFlyout>
+        <controls_legacy:DataGrid x:Name="shadowingView" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{x:Bind MyData}" CanUserSortColumns="True" Sorting="shadowingView_Sorting" IsReadOnly="True" DoubleTapped="DataGrid_DoubleTapped" RightTapped="DataGrid_RightTapped">
+            <controls_legacy:DataGrid.ContextFlyout>
                 <MenuFlyout>
                     <MenuFlyoutItem Text="Abmelden" Click="Abmelden_Click"/>
                     <MenuFlyoutItem Text="Nachricht senden" Click="SendMessageToUser_Click"/>
                 </MenuFlyout>
-            </controls:DataGrid.ContextFlyout>
+            </controls_legacy:DataGrid.ContextFlyout>
             <FlyoutBase.AttachedFlyout>
                 <Flyout x:Name="messageFlyout" Placement="Full">
                     <Flyout.FlyoutPresenterStyle>
@@ -78,12 +79,12 @@
                     </StackPanel>
                 </Flyout>
             </FlyoutBase.AttachedFlyout>
-            <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn Header="Username" Binding="{Binding Username}" />
-                <controls:DataGridTextColumn Header="PoolName" Binding="{Binding PoolName}" />
-                <controls:DataGridTextColumn Header="ServerName" Binding="{Binding ServerName}" />
-                <controls:DataGridTextColumn Header="SessionId" Binding="{Binding SessionId}" />
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>
+            <controls_legacy:DataGrid.Columns>
+                <controls_legacy:DataGridTextColumn Header="Username" Binding="{Binding Username}" />
+                <controls_legacy:DataGridTextColumn Header="PoolName" Binding="{Binding PoolName}" />
+                <controls_legacy:DataGridTextColumn Header="ServerName" Binding="{Binding ServerName}" />
+                <controls_legacy:DataGridTextColumn Header="SessionId" Binding="{Binding SessionId}" />
+            </controls_legacy:DataGrid.Columns>
+        </controls_legacy:DataGrid>
     </Grid>
 </Page>

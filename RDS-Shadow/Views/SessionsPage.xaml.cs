@@ -158,7 +158,12 @@ public sealed partial class SessionsPage : Page
         }
         else
         {
-            shadowingView.ItemsSource = new ObservableCollection<MyDataClass>(MyData.Where(item => item.Username.IndexOf(currentFilter, StringComparison.OrdinalIgnoreCase) >= 0));
+            // Filter anwenden: Suche nach Username oder ServerName
+            var filteredData = MyData.Where(item =>
+                item.Username.IndexOf(currentFilter, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                item.ServerName.IndexOf(currentFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            shadowingView.ItemsSource = new ObservableCollection<MyDataClass>(filteredData);
         }
     }
 
