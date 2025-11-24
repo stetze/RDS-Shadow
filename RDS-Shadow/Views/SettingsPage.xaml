@@ -66,9 +66,23 @@
                 <TextBlock x:Uid="Settings_Database" Style="{ThemeResource SubtitleTextBlockStyle}" />
             </StackPanel>
             <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                <TextBox x:Uid="Settings_SQLServer" x:Name="Settings_SQLServer" PlaceholderText="Geben Sie bitte den SQL Servernamen ein" />
-                <TextBox x:Uid="Settings_Databasename" x:Name="Settings_Databasename" PlaceholderText="Geben Sie bitte den Datenbanknamen ein" Margin="{ThemeResource XSmallTopMargin}" />
-                <Button x:Uid="Settings_Database_SaveButton" x:Name="Settings_Database_SaveButton" Content="Speichern" Click="Settings_Database_Click" Margin="{ThemeResource XSmallTopMargin}" />
+                <TextBox x:Uid="Settings_SQLServer" x:Name="Settings_SQLServer" />
+                <TextBox x:Uid="Settings_Databasename" x:Name="Settings_Databasename" Margin="{ThemeResource XSmallTopMargin}" />
+
+                <!-- Checkbox to enable client-name lookups -->
+                <CheckBox x:Name="Settings_IncludeClientNameCheckBox" Margin="0,10,0,0" x:Uid="Settings_IncludeClientName" />
+
+                <!-- Language selection -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,10,0,0">
+                    <TextBlock x:Name="Settings_LanguageLabel" VerticalAlignment="Center" Margin="0,0,8,0" x:Uid="Settings_Language.Label" />
+                    <ComboBox x:Name="Settings_LanguageComboBox" Width="220" SelectionChanged="Settings_LanguageComboBox_SelectionChanged">
+                        <ComboBoxItem x:Uid="Settings_Language_SystemDefault" Tag="" />
+                        <ComboBoxItem x:Uid="Settings_Language_English" Tag="en-US" />
+                        <ComboBoxItem x:Uid="Settings_Language_German" Tag="de-DE" />
+                    </ComboBox>
+                </StackPanel>
+
+                <Button x:Uid="Settings_Database_SaveButton" x:Name="Settings_Database_SaveButton" Click="Settings_Database_Click" Margin="{ThemeResource XSmallTopMargin}" />
             </StackPanel>
         </StackPanel>
     </Grid>

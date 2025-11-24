@@ -14,6 +14,12 @@ using RDS_Shadow.Helpers; // for GetLocalized()
 using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.InteropServices;
+using RDS_Shadow.Contracts.Services;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Linq;
+using System.Globalization;
 
 namespace RDS_Shadow.Views;
 
@@ -26,20 +32,28 @@ public sealed partial class SessionsPage : Page
         ViewModel = App.GetService<SessionsViewModel>();
         InitializeComponent();
 
-        // Set UI texts (fallback to German professional labels)
-        colUsername.Header = "Benutzer";
-        colPoolName.Header = "Pool";
-        colServerName.Header = "Server";
-        colSessionId.Header = "Sitzungs-ID";
+        // Localized helpers with fallback
+        static string LocalizedOrDefault(string key, string deDefault, string enDefault)
+        {
+            var val = key.GetLocalized();
+            if (val == key)
+            {
+                return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? deDefault : enDefault;
+            }
+            return val;
+        }
 
-        ToolTipService.SetToolTip(refresh, new ToolTip { Content = "Aktualisieren" });
-        filterUsername.PlaceholderText = "Filter (Benutzer oder Server)";
-        ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = "Nachricht an alle senden" });
+        // Set UI texts (use localization with fallback)
+        colUsername.Header = LocalizedOrDefault("Sessions_Column_Username", "Benutzer", "Username");
+        colPoolName.Header = LocalizedOrDefault("Sessions_Column_Pool", "Pool", "Pool");
+        colServerName.Header = LocalizedOrDefault("Sessions_Column_Server", "Server", "Server");
+        colSessionId.Header = LocalizedOrDefault("Sessions_Column_SessionId", "Sitzungs-ID", "SessionId");
 
-        SendAllButton.Content = "Alle benachrichtigen";
-        SendButton.Content = "Senden";
-        Sessions_MessageAllTitle.Text = "Nachricht an alle Nutzer";
-        messageAllTextBox.PlaceholderText = "Nachricht eingeben...";
+        ToolTipService.SetToolTip(refresh, new ToolTip { Content = LocalizedOrDefault("Sessions_Refresh_Tooltip", "Aktualisieren", "Refresh") });
+        filterUsername.PlaceholderText = LocalizedOrDefault("Sessions_Filter_Placeholder", "Filter (Benutzer oder Server)", "Filter (user or server)");
+        ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = LocalizedOrDefault("Sessions_SendAll_Tooltip", "Nachricht an alle angezeigten Nutzer senden", "Send message to all displayed users") });
+
+        SendButton.Content = LocalizedOrDefault("Sessions_Message_Send_Button", "Senden", "Send");
 
         // Ensure the list is populated automatically when the page is first shown
         Loaded += SessionsPage_Loaded;
@@ -55,12 +69,21 @@ public sealed partial class SessionsPage : Page
         Loaded -= SessionsPage_Loaded;
     }
 
-    public class MyDataClass
+    public class MyDataClass : INotifyPropertyChanged
     {
-        public string Username { get; set; }
-        public string PoolName { get; set; }
-        public string ServerName { get; set; }
-        public int SessionId { get; set; }
+        private string _username;
+        private string _poolName;
+        private string _serverName;
+        private int _sessionId;
+        private string _clientName = string.Empty;
+
+        public string Username { get => _username; set { _username = value; OnPropertyChanged(); } }
+        public string PoolName { get => _poolName; set { _poolName = value; OnPropertyChanged(); } }
+        public string ServerName { get => _serverName; set { _serverName = value; OnPropertyChanged(); } }
+        public int SessionId { get => _sessionId; set { _sessionId = value; OnPropertyChanged(); } }
+
+        // New: client name retrieved via WTS from the terminal server
+        public string ClientName { get => _clientName; set { _clientName = value; OnPropertyChanged(); } }
 
         public MyDataClass(string userName, string poolName, string serverName, int sessionId)
         {
@@ -68,7 +91,11 @@ public sealed partial class SessionsPage : Page
             PoolName = poolName;
             ServerName = serverName;
             SessionId = sessionId;
+            ClientName = string.Empty;
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     private readonly ObservableCollection<MyDataClass> MyData = new ObservableCollection<MyDataClass>();
@@ -76,16 +103,17 @@ public sealed partial class SessionsPage : Page
     // Semaphore to serialize ContentDialog.ShowAsync calls to avoid the "Only a single ContentDialog can be open at any time" COMException
     private readonly SemaphoreSlim _dialogSemaphore = new SemaphoreSlim(1, 1);
 
-    private async Task ShowContentDialogSerializedAsync(ContentDialog dialog)
+    private async Task<ContentDialogResult> ShowContentDialogSerializedAsync(ContentDialog dialog)
     {
         await _dialogSemaphore.WaitAsync();
         try
         {
-            await dialog.ShowAsync();
+            return await dialog.ShowAsync();
         }
         catch (COMException)
         {
             // If another dialog is shown concurrently, swallow or log as needed.
+            return ContentDialogResult.None;
         }
         finally
         {
@@ -93,8 +121,149 @@ public sealed partial class SessionsPage : Page
         }
     }
 
+    // --- WTS P/Invoke declarations for client lookup ---
+    private enum WTS_INFO_CLASS
+    {
+        WTSClientName = 10,
+        WTSClientAddress = 14
+    }
+
+    [DllImport("wtsapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern IntPtr WTSOpenServer(string pServerName);
+
+    [DllImport("wtsapi32.dll")]
+    private static extern void WTSCloseServer(IntPtr hServer);
+
+    [DllImport("wtsapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern bool WTSQuerySessionInformation(IntPtr hServer, int sessionId, WTS_INFO_CLASS wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);
+
+    [DllImport("wtsapi32.dll")]
+    private static extern void WTSFreeMemory(IntPtr pMemory);
+
+    // Decode pointer buffer robustly: try UTF-16 (Unicode), then ANSI (1252), then UTF-8
+    private static string PtrToStringSmart(IntPtr pBuffer, int bytes)
+    {
+        if (pBuffer == IntPtr.Zero || bytes <= 0)
+            return string.Empty;
+
+        // Try Unicode (UTF-16LE)
+        try
+        {
+            var s = Marshal.PtrToStringUni(pBuffer);
+            if (!string.IsNullOrWhiteSpace(s))
+            {
+                // check for likely valid characters
+                var total = s.Length;
+                var good = s.Count(c => (c >= 0x20 && c <= 0x7E) || char.IsLetterOrDigit(c) || char.IsWhiteSpace(c));
+                if (total > 0 && ((double)good / total) > 0.2)
+                {
+                    return s.Trim('\0', ' ');
+                }
+            }
+        }
+        catch { }
+
+        // Fallback: copy raw bytes and try ANSI (code page 1252)
+        try
+        {
+            var buffer = new byte[bytes];
+            Marshal.Copy(pBuffer, buffer, 0, bytes);
+
+            // Trim trailing zero bytes
+            var actualLength = buffer.Length;
+            while (actualLength > 0 && buffer[actualLength - 1] == 0) actualLength--;
+            if (actualLength <= 0) return string.Empty;
+
+            var ansi = Encoding.GetEncoding(1252).GetString(buffer, 0, actualLength);
+            if (!string.IsNullOrWhiteSpace(ansi))
+            {
+                var total = ansi.Length;
+                var good = ansi.Count(c => (c >= 0x20 && c <= 0x7E) || char.IsLetterOrDigit(c) || char.IsWhiteSpace(c));
+                if (total > 0 && ((double)good / total) > 0.2)
+                {
+                    return ansi.Trim('\0', ' ');
+                }
+            }
+
+            // Last try UTF8
+            try
+            {
+                var utf8 = Encoding.UTF8.GetString(buffer, 0, actualLength);
+                if (!string.IsNullOrWhiteSpace(utf8)) return utf8.Trim('\0', ' ');
+            }
+            catch { }
+        }
+        catch { }
+
+        return string.Empty;
+    }
+
+    private static string GetClientNameForSession(string server, int sessionId)
+    {
+        if (string.IsNullOrWhiteSpace(server)) return string.Empty;
+        IntPtr hServer = IntPtr.Zero;
+        try
+        {
+            hServer = WTSOpenServer(server);
+            if (hServer == IntPtr.Zero) return string.Empty;
+
+            if (WTSQuerySessionInformation(hServer, sessionId, WTS_INFO_CLASS.WTSClientName, out var pBuffer, out var bytes) && pBuffer != IntPtr.Zero)
+            {
+                try
+                {
+                    var clientName = PtrToStringSmart(pBuffer, bytes);
+                    return clientName;
+                }
+                finally
+                {
+                    WTSFreeMemory(pBuffer);
+                }
+            }
+        }
+        catch
+        {
+            // ignore errors and return empty
+        }
+        finally
+        {
+            if (hServer != IntPtr.Zero)
+            {
+                WTSCloseServer(hServer);
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static async Task<string> GetClientNameForSessionAsync(string server, int sessionId, int timeoutMs = 2000)
+    {
+        var t = Task.Run(() => GetClientNameForSession(server, sessionId));
+        if (await Task.WhenAny(t, Task.Delay(timeoutMs)) == t)
+        {
+            return t.Result;
+        }
+        return string.Empty;
+    }
+
     private async Task PopulateList(bool firstTime)
     {
+        const string IncludeClientNameKey = "IncludeClientNameSetting";
+
+        // Read user preference: include client name lookups
+        var includeClientObj = Windows.Storage.ApplicationData.Current.LocalSettings.Values.TryGetValue(IncludeClientNameKey, out var includeObj) ? includeObj as string : null;
+        var includeClient = false;
+        if (!string.IsNullOrEmpty(includeClientObj) && bool.TryParse(includeClientObj, out var parsed)) includeClient = parsed;
+
+        // Show/hide client column based on setting (UI thread)
+        try
+        {
+            if (colClientName != null)
+            {
+                colClientName.Visibility = includeClient ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+        catch { }
+
         var server = Windows.Storage.ApplicationData.Current.LocalSettings.Values.TryGetValue("SqlServerSetting", out var s) ? s as string : null;
         var db = Windows.Storage.ApplicationData.Current.LocalSettings.Values.TryGetValue("DatabaseNameSetting", out var d) ? d as string : null;
 
@@ -124,6 +293,30 @@ public sealed partial class SessionsPage : Page
 
                         MyData.Add(new MyDataClass(username, poolName, serverName, sessionId));
                     }
+
+                    // Optionally enrich with client names via WTS lookups if enabled
+                    if (includeClient)
+                    {
+                        var lookupSemaphore = new SemaphoreSlim(8); // limit concurrency
+                        var lookupTasks = MyData.Select(async item =>
+                        {
+                            await lookupSemaphore.WaitAsync();
+                            try
+                            {
+                                var client = await GetClientNameForSessionAsync(item.ServerName, item.SessionId, timeoutMs: 2000);
+                                if (!string.IsNullOrEmpty(client))
+                                {
+                                    item.ClientName = client;
+                                }
+                            }
+                            finally
+                            {
+                                lookupSemaphore.Release();
+                            }
+                        }).ToArray();
+
+                        await Task.WhenAll(lookupTasks);
+                    }
                 }
             }
             catch (SqlException ex)
@@ -139,7 +332,8 @@ public sealed partial class SessionsPage : Page
                     Title = title,
                     Content = content,
                     CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = App.GetService<IThemeSelectorService>()?.Theme ?? ElementTheme.Default
                 };
 
                 await ShowContentDialogSerializedAsync(dialog);
@@ -152,7 +346,8 @@ public sealed partial class SessionsPage : Page
                     Title = "Fehler",
                     Content = ex.Message,
                     CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = App.GetService<IThemeSelectorService>()?.Theme ?? ElementTheme.Default
                 };
 
                 await ShowContentDialogSerializedAsync(dialog);
@@ -176,6 +371,7 @@ public sealed partial class SessionsPage : Page
                 "PoolName" => itemsToSort.OrderBy(item => item.PoolName),
                 "ServerName" => itemsToSort.OrderBy(item => item.ServerName),
                 "SessionId" => itemsToSort.OrderBy(item => item.SessionId),
+                "ClientName" => itemsToSort.OrderBy(item => item.ClientName), // Sort by client name if applicable
                 _ => throw new InvalidOperationException("Invalid property name"),
             };
 
@@ -227,7 +423,8 @@ public sealed partial class SessionsPage : Page
             // Filter anwenden: Suche nach Username oder ServerName
             var filteredData = MyData.Where(item =>
                 item.Username.IndexOf(currentFilter, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                item.ServerName.IndexOf(currentFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                item.ServerName.IndexOf(currentFilter, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                item.ClientName.IndexOf(currentFilter, StringComparison.OrdinalIgnoreCase) >= 0);
 
             shadowingView.ItemsSource = new ObservableCollection<MyDataClass>(filteredData);
         }
@@ -297,12 +494,55 @@ public sealed partial class SessionsPage : Page
         }
     }
 
-    private void SendMessageToUser_Click(object sender, RoutedEventArgs e)
+    private async void SendMessageToUser_Click(object sender, RoutedEventArgs e)
     {
         if (shadowingView.SelectedItem is MyDataClass selectedRow)
         {
-            // Öffnen Sie das Flyout für die Nachrichteneingabe
-            messageFlyout.ShowAt(shadowingView, new FlyoutShowOptions { Placement = FlyoutPlacementMode.Full });
+            await ShowSendUserDialogAsync(selectedRow);
+        }
+    }
+
+    private async Task ShowSendUserDialogAsync(MyDataClass user)
+    {
+        var textBox = new TextBox
+        {
+            AcceptsReturn = true,
+            TextWrapping = TextWrapping.Wrap,
+            Height = 180,
+            Width = 480,
+            PlaceholderText = "Nachricht eingeben..."
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = $"Nachricht an {user.Username} ({user.ServerName})",
+            Content = textBox,
+            PrimaryButtonText = "Senden",
+            CloseButtonText = "Abbrechen",
+            XamlRoot = this.XamlRoot,
+            RequestedTheme = App.GetService<Contracts.Services.IThemeSelectorService>()?.Theme ?? ElementTheme.Default
+        };
+
+        var result = await ShowContentDialogSerializedAsync(dialog);
+        if (result == ContentDialogResult.Primary)
+        {
+            var message = textBox.Text;
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "msg",
+                    Arguments = $"{user.SessionId} /server:{user.ServerName} {message}",
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                MyData.Add(new MyDataClass("Fehler", $"Nachricht an {user.Username} fehlgeschlagen: {ex.Message}", "", 0));
+            }
         }
     }
 
@@ -334,18 +574,38 @@ public sealed partial class SessionsPage : Page
 
     private async void SendAllButton_Click(object sender, RoutedEventArgs e)
     {
-        // Stellen Sie sicher, dass die Liste vor dem Senden aktualisiert wird
-        await PopulateList(firstTime: true);
-        ApplyFilter();  // Wenden Sie den aktuellen Filter an, um sicherzustellen, dass die gefilterte Liste aktuell ist
+        await ShowSendAllDialogAsync();
+    }
 
-        try
+    private async Task ShowSendAllDialogAsync()
+    {
+        var textBox = new TextBox
         {
-            string messageToAllUsers = messageAllTextBox.Text;
+            AcceptsReturn = true,
+            TextWrapping = TextWrapping.Wrap,
+            Height = 220,
+            Width = 520,
+            PlaceholderText = "Nachricht eingeben..."
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "Nachricht an alle angezeigten Nutzer",
+            Content = textBox,
+            PrimaryButtonText = "Senden",
+            CloseButtonText = "Abbrechen",
+            XamlRoot = this.XamlRoot,
+            RequestedTheme = App.GetService<IThemeSelectorService>()?.Theme ?? ElementTheme.Default
+        };
+
+        var result = await ShowContentDialogSerializedAsync(dialog);
+        if (result == ContentDialogResult.Primary)
+        {
+            var messageToAllUsers = textBox.Text;
 
             // Verwenden Sie die aktuell angezeigte (gefilterte) Liste
             var filteredData = shadowingView.ItemsSource as ObservableCollection<MyDataClass>;
 
-            // Überprüfen Sie, ob filteredData nicht null ist, bevor Sie fortfahren
             if (filteredData != null)
             {
                 foreach (var user in filteredData)
@@ -372,13 +632,6 @@ public sealed partial class SessionsPage : Page
             {
                 MyData.Add(new MyDataClass("Warnung", "Keine Nutzer verfügbar.", "", 0));
             }
-
-            // Schließen Sie das Flyout nach dem Senden der Nachrichten
-            messageAllFlyout.Hide();
-        }
-        catch (Exception ex)
-        {
-            MyData.Add(new MyDataClass("Fehler", $"Nachricht an alle fehlgeschlagen: {ex.Message}", "", 0));
         }
     }
 }

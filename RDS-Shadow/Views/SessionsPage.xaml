@@ -20,70 +20,54 @@
                     <Image Source="/Assets/refresh.ico" Width="16" Height="16"/>
                 </Button.Content>
                 <ToolTipService.ToolTip>
-                    <ToolTip />
+                    <ToolTip x:Uid="Sessions_RefreshButton.ToolTipService.ToolTip" />
                 </ToolTipService.ToolTip>
             </Button>
-            <TextBox x:Uid="Sessions_FilterTextBox" x:Name="filterUsername" Width="275" Margin="10,0,0,0" PlaceholderText="" TextChanged="filterUsername_TextChanged" />
-            <Button x:Uid="Sessions_SendMessageAllButton" x:Name="sendMessageToAllUser" Margin="10,0,0,0">
+
+            <TextBox x:Uid="Sessions_FilterTextBox" x:Name="filterUsername" Width="275" Margin="10,0,0,0" TextChanged="filterUsername_TextChanged" />
+
+            <Button x:Uid="Sessions_SendMessageAllButton" x:Name="sendMessageToAllUser" Margin="10,0,0,0" Click="SendAllButton_Click">
                 <Button.Content>
-                    <FontIcon Glyph="&#xE8BD;" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8BD;" />
+                        <TextBlock x:Uid="Sessions_SendMessageAllButton_Text" />
+                    </StackPanel>
                 </Button.Content>
                 <ToolTipService.ToolTip>
-                    <ToolTip />
+                    <ToolTip x:Uid="Sessions_SendMessageAllButton.ToolTipService.ToolTip" />
                 </ToolTipService.ToolTip>
-                <Button.Flyout>
-                    <Flyout x:Name="messageAllFlyout" Placement="Full">
-                        <Flyout.FlyoutPresenterStyle>
-                            <Style TargetType="FlyoutPresenter">
-                                <Setter Property="MinWidth" Value="400"/>
-                                <Setter Property="Padding" Value="20"/>
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="CornerRadius" Value="10"/>
-                                <Setter Property="Shadow">
-                                    <Setter.Value>
-                                        <ThemeShadow />
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Flyout.FlyoutPresenterStyle>
-
-                        <StackPanel Spacing="20">
-                            <TextBlock x:Uid="Sessions_MessageAllTitle" x:Name="Sessions_MessageAllTitle" FontWeight="Bold" FontSize="18" />
-                            <TextBox x:Uid="Sessions_MessageAllTextBox" x:Name="messageAllTextBox" TextWrapping="Wrap" AcceptsReturn="True" Height="200" PlaceholderText="" />
-                            <Button x:Uid="Sessions_MessageAll_SendButton" x:Name="SendAllButton" Content="" Click="SendAllButton_Click" HorizontalAlignment="Right" />
-                        </StackPanel>
-                    </Flyout>
-                </Button.Flyout>
             </Button>
         </StackPanel>
 
         <controls_legacy:DataGrid x:Name="shadowingView" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{x:Bind MyData}" CanUserSortColumns="True" Sorting="shadowingView_Sorting" IsReadOnly="True" DoubleTapped="DataGrid_DoubleTapped" RightTapped="DataGrid_RightTapped">
             <controls_legacy:DataGrid.ContextFlyout>
                 <MenuFlyout>
-                    <MenuFlyoutItem x:Uid="Sessions_Context_Logout" Click="Abmelden_Click"/>
-                    <MenuFlyoutItem x:Uid="Sessions_Context_SendMessage" Click="SendMessageToUser_Click"/>
+                    <MenuFlyoutItem x:Uid="Sessions_Context_Logout" Text="Abmelden" Click="Abmelden_Click"/>
+                    <MenuFlyoutItem x:Uid="Sessions_Context_SendMessage" Text="Nachricht senden" Click="SendMessageToUser_Click"/>
                 </MenuFlyout>
             </controls_legacy:DataGrid.ContextFlyout>
+
             <FlyoutBase.AttachedFlyout>
                 <Flyout x:Name="messageFlyout" Placement="Full">
                     <Flyout.FlyoutPresenterStyle>
                         <Style TargetType="FlyoutPresenter">
                             <Setter Property="VerticalAlignment" Value="Center"/>
-                            <!-- Optional: Setze MaxHeight, um die maximale Höhe zu begrenzen -->
                             <Setter Property="MaxHeight" Value="400"/>
                         </Style>
                     </Flyout.FlyoutPresenterStyle>
                     <StackPanel>
-                        <TextBox x:Name="messageTextBox" TextWrapping="Wrap" AcceptsReturn="True" Width="350" Height="320"/>
-                        <Button x:Uid="Sessions_Message_SendButton" x:Name="SendButton" Content="" Click="SendButton_Click" Margin="0,10,0,0" />
+                        <TextBox x:Uid="Sessions_MessageTextBox" x:Name="messageTextBox" TextWrapping="Wrap" AcceptsReturn="True" Width="350" Height="320" />
+                        <Button x:Uid="Sessions_Message_Send_Button" x:Name="SendButton" Click="SendButton_Click" Margin="0,10,0,0" />
                     </StackPanel>
                 </Flyout>
             </FlyoutBase.AttachedFlyout>
+
             <controls_legacy:DataGrid.Columns>
-                <controls_legacy:DataGridTextColumn x:Name="colUsername" Header="Username" Binding="{Binding Username}" />
-                <controls_legacy:DataGridTextColumn x:Name="colPoolName" Header="PoolName" Binding="{Binding PoolName}" />
-                <controls_legacy:DataGridTextColumn x:Name="colServerName" Header="ServerName" Binding="{Binding ServerName}" />
-                <controls_legacy:DataGridTextColumn x:Name="colSessionId" Header="SessionId" Binding="{Binding SessionId}" />
+                <controls_legacy:DataGridTextColumn x:Uid="Sessions_Column_Username" x:Name="colUsername" Header="Benutzer" Binding="{Binding Username}" />
+                <controls_legacy:DataGridTextColumn x:Uid="Sessions_Column_PoolName" x:Name="colPoolName" Header="Pool" Binding="{Binding PoolName}" />
+                <controls_legacy:DataGridTextColumn x:Uid="Sessions_Column_ServerName" x:Name="colServerName" Header="Server" Binding="{Binding ServerName}" />
+                <controls_legacy:DataGridTextColumn x:Uid="Sessions_Column_ClientName" x:Name="colClientName" Header="Client" Binding="{Binding ClientName}" />
+                <controls_legacy:DataGridTextColumn x:Uid="Sessions_Column_SessionId" x:Name="colSessionId" Header="Sitzungs-ID" Binding="{Binding SessionId}" />
             </controls_legacy:DataGrid.Columns>
         </controls_legacy:DataGrid>
     </Grid>
