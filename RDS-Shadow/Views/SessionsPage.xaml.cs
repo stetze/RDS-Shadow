@@ -10,40 +10,57 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using ColorCode.Compilation.Languages;
+using RDS_Shadow.Helpers; // for GetLocalized()
+using System.Threading.Tasks;
+using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace RDS_Shadow.Views;
 
 public sealed partial class SessionsPage : Page
 {
-    public SessionsViewModel ViewModel
-    {
-        get;
-    }
+    public SessionsViewModel ViewModel { get; }
 
     public SessionsPage()
     {
         ViewModel = App.GetService<SessionsViewModel>();
         InitializeComponent();
-        PopulateList(true);
+
+        // Set UI texts (fallback to German professional labels)
+        colUsername.Header = "Benutzer";
+        colPoolName.Header = "Pool";
+        colServerName.Header = "Server";
+        colSessionId.Header = "Sitzungs-ID";
+
+        ToolTipService.SetToolTip(refresh, new ToolTip { Content = "Aktualisieren" });
+        filterUsername.PlaceholderText = "Filter (Benutzer oder Server)";
+        ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = "Nachricht an alle senden" });
+
+        SendAllButton.Content = "Alle benachrichtigen";
+        SendButton.Content = "Senden";
+        Sessions_MessageAllTitle.Text = "Nachricht an alle Nutzer";
+        messageAllTextBox.PlaceholderText = "Nachricht eingeben...";
+
+        // Ensure the list is populated automatically when the page is first shown
+        Loaded += SessionsPage_Loaded;
     }
+
+    private async void SessionsPage_Loaded(object? sender, RoutedEventArgs e)
+    {
+        // Populate on first load and apply current filter
+        await PopulateList(firstTime: true);
+        ApplyFilter();
+
+        // Unregister handler to avoid repeated loading
+        Loaded -= SessionsPage_Loaded;
+    }
+
     public class MyDataClass
     {
-        public string Username
-        {
-            get; set;
-        }
-        public string PoolName
-        {
-            get; set;
-        }
-        public string ServerName
-        {
-            get; set;
-        }
-        public int SessionId
-        {
-            get; set;
-        }
+        public string Username { get; set; }
+        public string PoolName { get; set; }
+        public string ServerName { get; set; }
+        public int SessionId { get; set; }
 
         public MyDataClass(string userName, string poolName, string serverName, int sessionId)
         {
@@ -53,44 +70,92 @@ public sealed partial class SessionsPage : Page
             SessionId = sessionId;
         }
     }
+
     private readonly ObservableCollection<MyDataClass> MyData = new ObservableCollection<MyDataClass>();
 
-    private void PopulateList(bool firstTime)
+    // Semaphore to serialize ContentDialog.ShowAsync calls to avoid the "Only a single ContentDialog can be open at any time" COMException
+    private readonly SemaphoreSlim _dialogSemaphore = new SemaphoreSlim(1, 1);
+
+    private async Task ShowContentDialogSerializedAsync(ContentDialog dialog)
     {
-        var server = (string)Windows.Storage.ApplicationData.Current.LocalSettings.Values["SqlServerSetting"];
-        var db = (string)Windows.Storage.ApplicationData.Current.LocalSettings.Values["DatabaseNameSetting"];
+        await _dialogSemaphore.WaitAsync();
+        try
+        {
+            await dialog.ShowAsync();
+        }
+        catch (COMException)
+        {
+            // If another dialog is shown concurrently, swallow or log as needed.
+        }
+        finally
+        {
+            _dialogSemaphore.Release();
+        }
+    }
+
+    private async Task PopulateList(bool firstTime)
+    {
+        var server = Windows.Storage.ApplicationData.Current.LocalSettings.Values.TryGetValue("SqlServerSetting", out var s) ? s as string : null;
+        var db = Windows.Storage.ApplicationData.Current.LocalSettings.Values.TryGetValue("DatabaseNameSetting", out var d) ? d as string : null;
 
         if (!string.IsNullOrEmpty(server) && !string.IsNullOrEmpty(db))
         {
-            var connectionString = $"Server={server};Database={db};Integrated Security=SSPI;TrustServerCertificate=true";
+            // Shorten connection timeout so errors surface quickly
+            var connectionString = $"Server={server};Database={db};Integrated Security=SSPI;TrustServerCertificate=true;Connect Timeout=3";
 
             try
             {
                 MyData.Clear();
                 using SqlConnection connection = new SqlConnection(connectionString);
-                connection.Open();
-                SqlCommand command = connection.CreateCommand();
+                await connection.OpenAsync();
+                using SqlCommand command = connection.CreateCommand();
                 command.CommandText = "SELECT * FROM Shadowing ORDER BY Username ASC";
-                SqlDataReader reader = command.ExecuteReader();
+
+                using SqlDataReader reader = await command.ExecuteReaderAsync();
 
                 if (firstTime)
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
-                        var username = reader.GetString(0); // Assuming the column index of the username is 0
-                        var poolName = reader.GetString(1); // Assuming the column index of the pool name is 1
-                        var serverName = reader.GetString(2); // Assuming the column index of the server name is 2
-                        var sessionId = reader.GetInt32(3); // Assuming the column index of the session ID is 3
+                        var username = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
+                        var poolName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                        var serverName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
+                        var sessionId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3);
 
                         MyData.Add(new MyDataClass(username, poolName, serverName, sessionId));
                     }
-                    reader.Close();
-                    connection.Close();
                 }
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
-                MyData.Add(new MyDataClass("Error", "Leider konnte keine Verbindung zu Ihrer Datenbank hergestellt werden. \nBitte kontrollieren Sie Ihre Daten in den Einstellungen bzw. prüfen Ihre Netzwerkverbindung.", "", 0));
+                // Show a friendly dialog to the user with localized text
+                var title = "Datenbank-Verbindungsfehler";
+                var content = "Es konnte keine Verbindung zur Datenbank hergestellt werden. Bitte prüfen Sie die Einstellungen und Ihre Netzwerkverbindung.";
+
+                content = content + "\n\n" + ex.Message;
+
+                var dialog = new ContentDialog
+                {
+                    Title = title,
+                    Content = content,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await ShowContentDialogSerializedAsync(dialog);
+            }
+            catch (Exception ex)
+            {
+                // Unexpected error: show generic dialog
+                var dialog = new ContentDialog
+                {
+                    Title = "Fehler",
+                    Content = ex.Message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await ShowContentDialogSerializedAsync(dialog);
             }
         }
     }
@@ -102,8 +167,8 @@ public sealed partial class SessionsPage : Page
             var propertyName = binding.Path.Path;
 
             var itemsToSort = string.IsNullOrEmpty(filterUsername.Text)
-            ? MyData
-            : new ObservableCollection<MyDataClass>(MyData.Where(item => item.Username.IndexOf(filterUsername.Text, StringComparison.OrdinalIgnoreCase) >= 0));
+                ? MyData
+                : new ObservableCollection<MyDataClass>(MyData.Where(item => item.Username.IndexOf(filterUsername.Text, StringComparison.OrdinalIgnoreCase) >= 0));
 
             var sortedItems = propertyName switch
             {
@@ -135,6 +200,7 @@ public sealed partial class SessionsPage : Page
             }
         }
     }
+
     private void filterUsername_TextChanged(object sender, TextChangedEventArgs e)
     {
         ApplyFilter();
@@ -142,9 +208,9 @@ public sealed partial class SessionsPage : Page
 
     private string currentFilter = string.Empty;
 
-    private void RefreshButton_Click(object sender, RoutedEventArgs e)
+    private async void RefreshButton_Click(object sender, RoutedEventArgs e)
     {
-        PopulateList(firstTime: true);
+        await PopulateList(firstTime: true);
         ApplyFilter(); // Apply the current filter after refreshing the list
     }
 
@@ -169,8 +235,6 @@ public sealed partial class SessionsPage : Page
 
     private void DataGrid_DoubleTapped(object sender, RoutedEventArgs e)
     {
-        // Hier können Sie den Code für den Doppelklick auf die Zeile hinzufügen
-
         if (shadowingView.SelectedItem is MyDataClass selectedRow)
         {
             try
@@ -179,7 +243,7 @@ public sealed partial class SessionsPage : Page
             }
             catch (Exception)
             {
-                // Hier erscheint die Fehlermeldung
+                // ignore
             }
         }
     }
@@ -201,15 +265,14 @@ public sealed partial class SessionsPage : Page
             abmeldenItem.Click += Abmelden_Click;
             menu.Items.Add(abmeldenItem);
 
-            var SendMessageToUserItem = new MenuFlyoutItem { Text = "Nachricht senden" };
-            SendMessageToUserItem.Click += SendMessageToUser_Click;
-            menu.Items.Add(SendMessageToUserItem);
+            var sendMessageItem = new MenuFlyoutItem { Text = "Nachricht senden" };
+            sendMessageItem.Click += SendMessageToUser_Click;
+            menu.Items.Add(sendMessageItem);
 
             menu.ShowAt(grid, e.GetPosition(grid));
             e.Handled = true;
         }
     }
-
 
     private void Abmelden_Click(object sender, RoutedEventArgs e)
     {
@@ -217,22 +280,19 @@ public sealed partial class SessionsPage : Page
         {
             try
             {
-                // Erstellen Sie eine ProcessStartInfo, um die Eigenschaften des zu startenden Prozesses zu konfigurieren.
                 ProcessStartInfo psi = new ProcessStartInfo
                 {
                     FileName = "logoff",
                     Arguments = $"{selectedRow.SessionId} /server:{selectedRow.ServerName}",
-                    CreateNoWindow = true,  // Diese Eigenschaft verhindert das Anzeigen des CMD-Fensters.
-                    UseShellExecute = false  // Erforderlich, wenn CreateNoWindow auf true gesetzt ist.
+                    CreateNoWindow = true,
+                    UseShellExecute = false
                 };
 
-                // Verwenden Sie Process.Start mit ProcessStartInfo, um den Prozess auszuführen.
                 Process.Start(psi);
             }
             catch (Exception ex)
             {
-                // Fehlerbehandlung für Ausnahmen beim Ausführen des logoff-Befehls
-                MyData.Add(new MyDataClass("Error", $"Fehler beim Abmelden: {ex.Message}", "", 0));
+                MyData.Add(new MyDataClass("Fehler", $"Abmelden fehlgeschlagen: {ex.Message}", "", 0));
             }
         }
     }
@@ -245,6 +305,7 @@ public sealed partial class SessionsPage : Page
             messageFlyout.ShowAt(shadowingView, new FlyoutShowOptions { Placement = FlyoutPlacementMode.Full });
         }
     }
+
     private void SendButton_Click(object sender, RoutedEventArgs e)
     {
         if (shadowingView.SelectedItem is MyDataClass selectedRow)
@@ -255,11 +316,10 @@ public sealed partial class SessionsPage : Page
                 {
                     FileName = "msg",
                     Arguments = $"{selectedRow.SessionId} /server:{selectedRow.ServerName} {messageTextBox.Text}",
-                    CreateNoWindow = true,  // Diese Eigenschaft verhindert das Anzeigen des CMD-Fensters.
-                    UseShellExecute = false  // Erforderlich, wenn CreateNoWindow auf true gesetzt ist.
+                    CreateNoWindow = true,
+                    UseShellExecute = false
                 };
-                // Verwenden Sie den Process.Start, um den "msg" Befehl auszuführen
-                // Fügen Sie die eingegebene Nachricht aus dem Textfeld hinzu
+
                 Process.Start(psi);
 
                 // Schließen Sie das Flyout nach dem Senden der Nachricht
@@ -267,16 +327,15 @@ public sealed partial class SessionsPage : Page
             }
             catch (Exception ex)
             {
-                // Fehlerbehandlung für Ausnahmen beim Ausführen des msg-Befehls
-                MyData.Add(new MyDataClass("Error", $"Fehler beim Senden der Nachricht: {ex.Message}", "", 0));
+                MyData.Add(new MyDataClass("Fehler", $"Nachricht senden fehlgeschlagen: {ex.Message}", "", 0));
             }
         }
     }
 
-    private void SendAllButton_Click(object sender, RoutedEventArgs e)
+    private async void SendAllButton_Click(object sender, RoutedEventArgs e)
     {
         // Stellen Sie sicher, dass die Liste vor dem Senden aktualisiert wird
-        PopulateList(firstTime: true);
+        await PopulateList(firstTime: true);
         ApplyFilter();  // Wenden Sie den aktuellen Filter an, um sicherzustellen, dass die gefilterte Liste aktuell ist
 
         try
@@ -293,7 +352,6 @@ public sealed partial class SessionsPage : Page
                 {
                     try
                     {
-                        // Nachricht an die spezifische Sitzung auf dem Server senden
                         ProcessStartInfo psi = new ProcessStartInfo
                         {
                             FileName = "msg",
@@ -302,19 +360,17 @@ public sealed partial class SessionsPage : Page
                             UseShellExecute = false
                         };
 
-                        // Führen Sie den Befehl aus
                         Process.Start(psi);
                     }
                     catch (Exception ex)
                     {
-                        // Fehlerbehandlung für jede einzelne Nachricht
-                        MyData.Add(new MyDataClass("Error", $"Fehler beim Senden der Nachricht an {user.Username} auf Server {user.ServerName}: {ex.Message}", "", 0));
+                        MyData.Add(new MyDataClass("Fehler", $"Nachricht an {user.Username} fehlgeschlagen: {ex.Message}", "", 0));
                     }
                 }
             }
             else
             {
-                MyData.Add(new MyDataClass("Warnung", "Es sind keine Benutzer in der aktuellen Ansicht.", "", 0));
+                MyData.Add(new MyDataClass("Warnung", "Keine Nutzer verfügbar.", "", 0));
             }
 
             // Schließen Sie das Flyout nach dem Senden der Nachrichten
@@ -322,8 +378,7 @@ public sealed partial class SessionsPage : Page
         }
         catch (Exception ex)
         {
-            // Fehlerbehandlung für die gesamte Operation
-            MyData.Add(new MyDataClass("Error", $"Fehler beim Senden der Nachricht an alle Benutzer: {ex.Message}", "", 0));
+            MyData.Add(new MyDataClass("Fehler", $"Nachricht an alle fehlgeschlagen: {ex.Message}", "", 0));
         }
     }
 }

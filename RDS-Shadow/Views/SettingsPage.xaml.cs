@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 
 using RDS_Shadow.ViewModels;
 using Windows.Storage;
+using RDS_Shadow.Helpers; // for GetLocalized()
 
 namespace RDS_Shadow.Views;
 
@@ -21,6 +22,11 @@ public sealed partial class SettingsPage : Page
         ViewModel = App.GetService<SettingsViewModel>();
         InitializeComponent();
         Loaded += SettingsPage_Loaded;
+
+        // Localize placeholders and buttons
+        Settings_SQLServer.PlaceholderText = "Settings_SQLServer.PlaceholderText".GetLocalized();
+        Settings_Databasename.PlaceholderText = "Settings_Databasename.PlaceholderText".GetLocalized();
+        Settings_Database_SaveButton.Content = "Settings_Database_SaveButton.Content".GetLocalized();
     }
     private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
     {
@@ -38,5 +44,7 @@ public sealed partial class SettingsPage : Page
     {
         ApplicationData.Current.LocalSettings.Values[SqlServerSettingKey] = Settings_SQLServer.Text;
         ApplicationData.Current.LocalSettings.Values[DatabaseNameSettingKey] = Settings_Databasename.Text;
+
+        // Optional: show a localized confirmation (not implemented visually here)
     }
 }

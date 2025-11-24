@@ -66,9 +66,9 @@
                 <TextBlock x:Uid="Settings_Database" Style="{ThemeResource SubtitleTextBlockStyle}" />
             </StackPanel>
             <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                <TextBox x:Name="Settings_SQLServer" PlaceholderText="Geben Sie bitte den SQL Servernamen ein" />
-                <TextBox x:Name="Settings_Databasename" PlaceholderText="Geben Sie bitte den Datenbanknamen ein" Margin="{ThemeResource XSmallTopMargin}" />
-                <Button Content="Speichern" Click="Settings_Database_Click" Margin="{ThemeResource XSmallTopMargin}" />
+                <TextBox x:Uid="Settings_SQLServer" x:Name="Settings_SQLServer" PlaceholderText="Geben Sie bitte den SQL Servernamen ein" />
+                <TextBox x:Uid="Settings_Databasename" x:Name="Settings_Databasename" PlaceholderText="Geben Sie bitte den Datenbanknamen ein" Margin="{ThemeResource XSmallTopMargin}" />
+                <Button x:Uid="Settings_Database_SaveButton" x:Name="Settings_Database_SaveButton" Content="Speichern" Click="Settings_Database_Click" Margin="{ThemeResource XSmallTopMargin}" />
             </StackPanel>
         </StackPanel>
     </Grid>

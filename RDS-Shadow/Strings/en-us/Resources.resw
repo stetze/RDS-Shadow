@@ -117,6 +117,45 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+
+  <data name="Sessions_RefreshButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Sessions_FilterTextBox.PlaceholderText" xml:space="preserve">
+    <value>Enter filter text</value>
+  </data>
+  <data name="Sessions_SendMessageAllButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Send message to current users</value>
+  </data>
+  <data name="Sessions_MessageAllTitle.Text" xml:space="preserve">
+    <value>Message to current users</value>
+  </data>
+  <data name="Sessions_MessageAllTextBox.PlaceholderText" xml:space="preserve">
+    <value>Enter message here...</value>
+  </data>
+  <data name="Sessions_MessageAll_SendButton.Content" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Sessions_Message_SendButton.Content" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Sessions_Column_Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Sessions_Column_PoolName" xml:space="preserve"><value>Pool</value></data>
+  <data name="Sessions_Column_ServerName" xml:space="preserve"><value>Server</value></data>
+  <data name="Sessions_Column_SessionId" xml:space="preserve"><value>Session ID</value></data>
+  <data name="Sessions_Context_Logout" xml:space="preserve"><value>Sign out</value></data>
+  <data name="Sessions_Context_SendMessage" xml:space="preserve"><value>Send message</value></data>
+  <data name="Sessions_Error_DbConnection" xml:space="preserve"><value>Unable to connect to the database. Please check your settings or network connection.</value></data>
+  <data name="Sessions_Warn_NoUsers" xml:space="preserve"><value>There are no users in the current view.</value></data>
+  <data name="Sessions_Error_SendMessage" xml:space="preserve"><value>Error sending message: {0}</value></data>
+  <data name="Sessions_Error_SendMessageUser" xml:space="preserve"><value>Error sending message to {0}: {1}</value></data>
+  <data name="Sessions_Error_SendAll" xml:space="preserve"><value>Error sending message to all users: {0}</value></data>
+
+  <data name="Settings_SQLServer.PlaceholderText" xml:space="preserve"><value>Enter SQL Server name</value></data>
+  <data name="Settings_Databasename.PlaceholderText" xml:space="preserve"><value>Enter database name</value></data>
+  <data name="Settings_Database_SaveButton.Content" xml:space="preserve"><value>Save</value></data>
+
+  <!-- Existing resources preserved -->
   <data name="AppDisplayName" xml:space="preserve">
     <value>RDS-Shadow</value>
   </data>
