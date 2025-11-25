@@ -20,7 +20,7 @@
                     <Image Source="/Assets/refresh.ico" Width="16" Height="16"/>
                 </Button.Content>
                 <ToolTipService.ToolTip>
-                    <ToolTip x:Uid="Sessions_RefreshButton.ToolTipService.ToolTip" />
+                    <ToolTip x:Name="refreshToolTip" x:Uid="Sessions_RefreshButton.ToolTipService.ToolTip" />
                 </ToolTipService.ToolTip>
             </Button>
 
@@ -30,11 +30,11 @@
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE8BD;" />
-                        <TextBlock x:Uid="Sessions_SendMessageAllButton_Text" />
+                        <TextBlock x:Name="sendAllText" x:Uid="Sessions_SendMessageAllButton_Text" />
                     </StackPanel>
                 </Button.Content>
                 <ToolTipService.ToolTip>
-                    <ToolTip x:Uid="Sessions_SendMessageAllButton.ToolTipService.ToolTip" />
+                    <ToolTip x:Name="sendAllToolTip" x:Uid="Sessions_SendMessageAllButton.ToolTipService.ToolTip" />
                 </ToolTipService.ToolTip>
             </Button>
         </StackPanel>
@@ -42,8 +42,8 @@
         <controls_legacy:DataGrid x:Name="shadowingView" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{x:Bind MyData}" CanUserSortColumns="True" Sorting="shadowingView_Sorting" IsReadOnly="True" DoubleTapped="DataGrid_DoubleTapped" RightTapped="DataGrid_RightTapped">
             <controls_legacy:DataGrid.ContextFlyout>
                 <MenuFlyout>
-                    <MenuFlyoutItem x:Uid="Sessions_Context_Logout" Text="Abmelden" Click="Abmelden_Click"/>
-                    <MenuFlyoutItem x:Uid="Sessions_Context_SendMessage" Text="Nachricht senden" Click="SendMessageToUser_Click"/>
+                    <MenuFlyoutItem x:Name="menuLogoutItem" x:Uid="Sessions_Context_Logout" Text="Abmelden" Click="Abmelden_Click"/>
+                    <MenuFlyoutItem x:Name="menuSendMessageItem" x:Uid="Sessions_Context_SendMessage" Text="Nachricht senden" Click="SendMessageToUser_Click"/>
                 </MenuFlyout>
             </controls_legacy:DataGrid.ContextFlyout>
 
@@ -56,6 +56,7 @@
                         </Style>
                     </Flyout.FlyoutPresenterStyle>
                     <StackPanel>
+                        <TextBlock x:Name="messageFlyoutTitle" FontWeight="SemiBold" Margin="0,0,0,8" TextWrapping="Wrap" />
                         <TextBox x:Uid="Sessions_MessageTextBox" x:Name="messageTextBox" TextWrapping="Wrap" AcceptsReturn="True" Width="350" Height="320" />
                         <Button x:Uid="Sessions_Message_Send_Button" x:Name="SendButton" Click="SendButton_Click" Margin="0,10,0,0" />
                     </StackPanel>

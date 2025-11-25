@@ -41,7 +41,7 @@
             Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay}">
             <NavigationView.MenuItems>
                      
-                <NavigationViewItem Margin="0,43,0,0" x:Uid="Shell_Sessions" helpers:NavigationHelper.NavigateTo="RDS_Shadow.ViewModels.SessionsViewModel">
+                <NavigationViewItem Margin="0,43,0,0" x:Uid="Shell_Sessions" Tag="Shell_Sessions.Content" helpers:NavigationHelper.NavigateTo="RDS_Shadow.ViewModels.SessionsViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe748;"/>
                     </NavigationViewItem.Icon>

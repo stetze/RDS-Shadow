@@ -150,6 +150,7 @@
   <data name="Sessions_Error_SendMessage" xml:space="preserve"><value>Fehler beim Senden der Nachricht: {0}</value></data>
   <data name="Sessions_Error_SendMessageUser" xml:space="preserve"><value>Fehler beim Senden der Nachricht an {0}: {1}</value></data>
   <data name="Sessions_Error_SendAll" xml:space="preserve"><value>Fehler beim Senden der Nachricht an alle Benutzer: {0}</value></data>
+  <data name="Sessions_MessageToUser_Title" xml:space="preserve"><value>Nachricht an {0} ({1})</value></data>
 
   <data name="Settings_SQLServer.PlaceholderText" xml:space="preserve"><value>Geben Sie bitte den SQL Servernamen ein</value></data>
   <data name="Settings_Databasename.PlaceholderText" xml:space="preserve"><value>Geben Sie bitte den Datenbanknamen ein</value></data>
@@ -160,6 +161,7 @@
   <data name="Sessions_Column_ClientName" xml:space="preserve"><value>Client</value></data>
   <data name="Sessions_Column_Pool" xml:space="preserve"><value>Pool</value></data>
   <data name="Sessions_Column_Server" xml:space="preserve"><value>Server</value></data>
+  <data name="Settings_OtherSettings" xml:space="preserve"><value>Sonstige Einstellungen</value></data>
 
   <!-- Existing resources preserved -->
   <data name="AppDisplayName" xml:space="preserve">
@@ -208,7 +210,7 @@
   <data name="Settings_LanguageChange_Later" xml:space="preserve"><value>Später</value></data>
 
   <!-- Generic labels -->
-  <data name="Settings_Language.SystemDefaultText" xml:space="preserve"><value>Systemstandard</value></data>
+  <data name="Settings_Language_SystemDefault.Content" xml:space="preserve"><value>Systemstandard</value></data>
   <data name="Settings_Language_English.Content" xml:space="preserve"><value>English (United States)</value></data>
   <data name="Settings_Language_German.Content" xml:space="preserve"><value>Deutsch (Deutschland)</value></data>
 

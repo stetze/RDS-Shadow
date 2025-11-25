@@ -19,9 +19,13 @@ public sealed partial class ShellPage : Page
         get;
     }
 
+    private readonly ILocalizationService _localizationService;
+
     public ShellPage(ShellViewModel viewModel)
     {
         ViewModel = viewModel;
+        _localizationService = App.GetService<ILocalizationService>();
+
         InitializeComponent();
 
         ViewModel.NavigationService.Frame = NavigationFrame;
@@ -32,7 +36,80 @@ public sealed partial class ShellPage : Page
         App.MainWindow.ExtendsContentIntoTitleBar = true;
         App.MainWindow.SetTitleBar(AppTitleBar);
         App.MainWindow.Activated += MainWindow_Activated;
+
         AppTitleBarText.Text = "AppDisplayName".GetLocalized();
+
+        _localization_service_subscribe();
+    }
+
+    private void _localization_service_subscribe()
+    {
+        _localizationService.LanguageChanged += LocalizationService_LanguageChanged;
+    }
+
+    private void LocalizationService_LanguageChanged(object? sender, System.EventArgs e)
+    {
+        _ = DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
+        {
+            // Update App title
+            AppTitleBarText.Text = "AppDisplayName".GetLocalized();
+
+            // Update NavigationView menu items using Tag as resource key
+            void UpdateItem(object item)
+            {
+                if (item is NavigationViewItem nvi)
+                {
+                    if (nvi.Tag is string tagKey && !string.IsNullOrEmpty(tagKey))
+                    {
+                        nvi.Content = tagKey.GetLocalized();
+                    }
+
+                    if (nvi.MenuItems != null && nvi.MenuItems.Count > 0)
+                    {
+                        foreach (var sub in nvi.MenuItems)
+                        {
+                            UpdateItem(sub);
+                        }
+                    }
+                }
+                else if (item is FrameworkElement fe && fe.Tag is string tagKey && !string.IsNullOrEmpty(tagKey))
+                {
+                    if (fe is NavigationViewItem nav)
+                    {
+                        nav.Content = tagKey.GetLocalized();
+                    }
+                }
+            }
+
+            foreach (var menuItem in NavigationViewControl.MenuItems)
+            {
+                UpdateItem(menuItem);
+            }
+
+            // Update settings item if present
+            if (NavigationViewControl.SettingsItem is FrameworkElement settingsFe && settingsFe.Tag is string settingsTagKey)
+            {
+                if (NavigationViewControl.SettingsItem is NavigationViewItem settingsNvi)
+                {
+                    settingsNvi.Content = settingsTagKey.GetLocalized();
+                }
+            }
+
+            // Force reload of the current page inside the NavigationFrame so x:Uid resources reapply
+            try
+            {
+                if (NavigationFrame?.Content != null)
+                {
+                    var currentPageType = NavigationFrame.Content.GetType();
+                    // Use a new parameter to force navigation even if same page type
+                    NavigationFrame.Navigate(currentPageType, System.Guid.NewGuid().ToString());
+                }
+            }
+            catch
+            {
+                // ignore navigation refresh errors
+            }
+        });
     }
 
     private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

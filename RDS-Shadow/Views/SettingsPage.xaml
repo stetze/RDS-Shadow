@@ -51,32 +51,37 @@
                 </StackPanel>
             </StackPanel>
 
-            <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
+            <!-- About section moved up under the top header -->
+            <TextBlock x:Uid="Settings_About" x:Name="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="{StaticResource XSmallTopBottomMargin}" />
 
-            <StackPanel Margin="{StaticResource XSmallTopMargin}">
+            <StackPanel Margin="{StaticResource XSmallTopBottomMargin}">
                 <TextBlock Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" />
 
                 <TextBlock
-                    x:Uid="Settings_AboutDescription"
+                    x:Uid="Settings_AboutDescription" x:Name="Settings_AboutDescription"
                     Margin="{StaticResource XSmallTopMargin}"
                     Style="{ThemeResource BodyTextBlockStyle}" />
-                <HyperlinkButton x:Uid="SettingsPage_PrivacyTermsLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" />
+                <HyperlinkButton x:Uid="SettingsPage_PrivacyTermsLink" x:Name="SettingsPage_PrivacyTermsLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" />
             </StackPanel>
-            <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                <TextBlock x:Uid="Settings_Database" Style="{ThemeResource SubtitleTextBlockStyle}" />
-            </StackPanel>
-            <StackPanel Margin="{StaticResource XSmallTopMargin}">
+
+            <!-- Database settings -->
+            <TextBlock x:Uid="Settings_Database" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="{StaticResource XSmallTopBottomMargin}" />
+
+            <StackPanel Margin="{StaticResource XSmallTopBottomMargin}">
                 <TextBox x:Uid="Settings_SQLServer" x:Name="Settings_SQLServer" />
                 <TextBox x:Uid="Settings_Databasename" x:Name="Settings_Databasename" Margin="{ThemeResource XSmallTopMargin}" />
 
+                <!-- Small header to separate other settings -->
+                <TextBlock x:Name="Settings_OtherSettings" x:Uid="Settings_OtherSettings" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="{StaticResource XSmallTopBottomMargin}" />
+
                 <!-- Checkbox to enable client-name lookups -->
-                <CheckBox x:Name="Settings_IncludeClientNameCheckBox" Margin="0,10,0,0" x:Uid="Settings_IncludeClientName" />
+                <CheckBox x:Name="Settings_IncludeClientNameCheckBox" Margin="0,8,0,0" x:Uid="Settings_IncludeClientName" />
 
                 <!-- Language selection -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,10,0,0">
-                    <TextBlock x:Name="Settings_LanguageLabel" VerticalAlignment="Center" Margin="0,0,8,0" x:Uid="Settings_Language.Label" />
+                    <TextBlock x:Name="Settings_LanguageLabel" VerticalAlignment="Center" Margin="0,0,8,0" x:Uid="Settings_Language" />
                     <ComboBox x:Name="Settings_LanguageComboBox" Width="220" SelectionChanged="Settings_LanguageComboBox_SelectionChanged">
-                        <ComboBoxItem x:Uid="Settings_Language_SystemDefault" Tag="" />
+                        <!-- <ComboBoxItem x:Uid="Settings_Language_SystemDefault" Tag="" /> -->
                         <ComboBoxItem x:Uid="Settings_Language_English" Tag="en-US" />
                         <ComboBoxItem x:Uid="Settings_Language_German" Tag="de-DE" />
                     </ComboBox>
@@ -84,6 +89,8 @@
 
                 <Button x:Uid="Settings_Database_SaveButton" x:Name="Settings_Database_SaveButton" Click="Settings_Database_Click" Margin="{ThemeResource XSmallTopMargin}" />
             </StackPanel>
+
+            
         </StackPanel>
     </Grid>
 </Page>

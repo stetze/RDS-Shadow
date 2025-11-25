@@ -6,6 +6,7 @@ using Windows.Globalization;
 using RDS_Shadow.ViewModels;
 using Windows.Storage;
 using RDS_Shadow.Helpers; // for GetLocalized()
+using RDS_Shadow.Contracts.Services;
 
 namespace RDS_Shadow.Views;
 
@@ -16,6 +17,9 @@ public sealed partial class SettingsPage : Page
     private const string IncludeClientNameKey = "IncludeClientNameSetting";
     private const string LanguageSettingKey = "LanguageSetting";
 
+    private readonly ILocalizationService _localizationService;
+    private readonly IThemeSelectorService _themeSelectorService;
+
     public SettingsViewModel ViewModel
     {
         get;
@@ -24,16 +28,31 @@ public sealed partial class SettingsPage : Page
     public SettingsPage()
     {
         ViewModel = App.GetService<SettingsViewModel>();
+        _localizationService = App.GetService<ILocalizationService>();
+        _themeSelectorService = App.GetService<IThemeSelectorService>();
+
         InitializeComponent();
         Loaded += SettingsPage_Loaded;
 
+        _localizationService.LanguageChanged += LocalizationService_LanguageChanged;
+
+        ApplyLocalizedStrings();
+    }
+
+    private void LocalizationService_LanguageChanged(object? sender, System.EventArgs e)
+    {
+        _ = DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () => ApplyLocalizedStrings());
+    }
+
+    private void ApplyLocalizedStrings()
+    {
         // Localize placeholders and buttons
         Settings_SQLServer.PlaceholderText = "Settings_SQLServer.PlaceholderText".GetLocalized();
         Settings_Databasename.PlaceholderText = "Settings_Databasename.PlaceholderText".GetLocalized();
         Settings_Database_SaveButton.Content = "Settings_Database_SaveButton.Content".GetLocalized();
 
-        // Localize the new checkbox label with fallback
-        var key = "Settings_IncludeClientName.Label";
+        // Localize checkbox label
+        var key = "Settings_IncludeClientName.Content";
         var localized = key.GetLocalized();
         if (localized == key)
         {
@@ -45,8 +64,8 @@ public sealed partial class SettingsPage : Page
             Settings_IncludeClientNameCheckBox.Content = localized;
         }
 
-        // Language label with fallback
-        var langKey = "Settings_Language.Label";
+        // Language label
+        var langKey = "Settings_Language.Text";
         var langLocalized = langKey.GetLocalized();
         if (langLocalized == langKey)
         {
@@ -56,6 +75,55 @@ public sealed partial class SettingsPage : Page
         {
             Settings_LanguageLabel.Text = langLocalized;
         }
+
+        // Populate combobox item contents from resources
+        if (Settings_LanguageComboBox.Items.Count > 0)
+        {
+            foreach (var obj in Settings_LanguageComboBox.Items)
+            {
+                if (obj is ComboBoxItem item)
+                {
+                    var tag = item.Tag as string ?? string.Empty;
+                    switch (tag)
+                    {
+                        case "":
+                        {
+                            var sysText = "Settings_Language_SystemDefault.Content".GetLocalized();
+                            item.Content = sysText == "Settings_Language_SystemDefault.Content" ? (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Systemstandard" : "System default") : sysText;
+                            break;
+                        }
+                        case "en-US":
+                        {
+                            var enText = "Settings_Language_English.Content".GetLocalized();
+                            item.Content = enText == "Settings_Language_English.Content" ? "English (United States)" : enText;
+                            break;
+                        }
+                        case "de-DE":
+                        {
+                            var deText = "Settings_Language_German.Content".GetLocalized();
+                            item.Content = deText == "Settings_Language_German.Content" ? "Deutsch (Deutschland)" : deText;
+                            break;
+                        }
+                        default:
+                            item.Content = tag;
+                            break;
+                    }
+                }
+            }
+        }
+
+        // Localize About and OtherSettings headers and privacy link
+        var aboutText = "Settings_About.Text".GetLocalized();
+        Settings_About.Text = aboutText == "Settings_About.Text" ? (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Über diese Anwendung" : "About this app") : aboutText;
+
+        var aboutDesc = "Settings_AboutDescription.Text".GetLocalized();
+        Settings_AboutDescription.Text = aboutDesc == "Settings_AboutDescription.Text" ? (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Beschreibung zur Anwendung" : "Description about the application") : aboutDesc;
+
+        var otherText = "Settings_OtherSettings.Text".GetLocalized();
+        Settings_OtherSettings.Text = otherText == "Settings_OtherSettings.Text" ? (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Sonstige Einstellungen" : "Other settings") : otherText;
+
+        var privacyText = "SettingsPage_PrivacyTermsLink.Content".GetLocalized();
+        SettingsPage_PrivacyTermsLink.Content = privacyText == "SettingsPage_PrivacyTermsLink.Content" ? (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Datenschutz" : "Privacy & Terms") : privacyText;
     }
 
     private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
@@ -80,25 +148,106 @@ public sealed partial class SettingsPage : Page
         }
 
         // Initialize language combobox selection
-        if (ApplicationData.Current.LocalSettings.Values.TryGetValue(LanguageSettingKey, out var langObj) && langObj is string langStr && !string.IsNullOrEmpty(langStr))
+        if (ApplicationData.Current.LocalSettings.Values.TryGetValue(LanguageSettingKey, out var langObj) && langObj is string langStr)
         {
-            foreach (var obj in Settings_LanguageComboBox.Items)
+            // If stored value is empty (previously used system-default), remove it so it doesn't cause confusion
+            if (string.IsNullOrWhiteSpace(langStr))
             {
-                if (obj is ComboBoxItem item)
+                ApplicationData.Current.LocalSettings.Values.Remove(LanguageSettingKey);
+                langStr = string.Empty;
+            }
+
+            if (!string.IsNullOrEmpty(langStr))
+            {
+                var found = false;
+                foreach (var obj in Settings_LanguageComboBox.Items)
                 {
-                    var tag = item.Tag as string ?? string.Empty;
-                    if (string.Equals(tag, langStr, StringComparison.OrdinalIgnoreCase))
+                    if (obj is ComboBoxItem item)
                     {
-                        Settings_LanguageComboBox.SelectedItem = item;
-                        break;
+                        var tag = item.Tag as string ?? string.Empty;
+                        if (string.Equals(tag, langStr, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Settings_LanguageComboBox.SelectedItem = item;
+                            found = true;
+                            break;
+                        }
                     }
+                }
+
+                if (!found)
+                {
+                    // Stored value doesn't match any available item -> remove and fallback to system language
+                    ApplicationData.Current.LocalSettings.Values.Remove(LanguageSettingKey);
+
+                    var sysTag = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "de-DE" : "en-US";
+                    foreach (var obj in Settings_LanguageComboBox.Items)
+                    {
+                        if (obj is ComboBoxItem item)
+                        {
+                            var tag = item.Tag as string ?? string.Empty;
+                            if (string.Equals(tag, sysTag, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Settings_LanguageComboBox.SelectedItem = item;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!found && Settings_LanguageComboBox.Items.Count > 0)
+                    {
+                        Settings_LanguageComboBox.SelectedIndex = 0;
+                    }
+                }
+            }
+            else
+            {
+                // No stored language -> pick best guess from system language
+                var sysTag = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "de-DE" : "en-US";
+                var found = false;
+                foreach (var obj in Settings_LanguageComboBox.Items)
+                {
+                    if (obj is ComboBoxItem item)
+                    {
+                        var tag = item.Tag as string ?? string.Empty;
+                        if (string.Equals(tag, sysTag, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Settings_LanguageComboBox.SelectedItem = item;
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found && Settings_LanguageComboBox.Items.Count > 0)
+                {
+                    Settings_LanguageComboBox.SelectedIndex = 0;
                 }
             }
         }
         else
         {
-            // Select system default
-            Settings_LanguageComboBox.SelectedIndex = 0;
+            // No saved value at all -> pick best guess from system language
+            var sysTag = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "de-DE" : "en-US";
+            var found = false;
+            foreach (var obj in Settings_LanguageComboBox.Items)
+            {
+                if (obj is ComboBoxItem item)
+                {
+                    var tag = item.Tag as string ?? string.Empty;
+                    if (string.Equals(tag, sysTag, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Settings_LanguageComboBox.SelectedItem = item;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found && Settings_LanguageComboBox.Items.Count > 0)
+            {
+                Settings_LanguageComboBox.SelectedIndex = 0;
+            }
         }
     }
 
@@ -115,16 +264,24 @@ public sealed partial class SettingsPage : Page
         if (Settings_LanguageComboBox.SelectedItem is ComboBoxItem sel && sel.Tag is string t)
         {
             newLang = t;
-            ApplicationData.Current.LocalSettings.Values[LanguageSettingKey] = t;
+            if (string.IsNullOrWhiteSpace(newLang))
+            {
+                // User selected system default: remove stored override to fall back to system
+                ApplicationData.Current.LocalSettings.Values.Remove(LanguageSettingKey);
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values[LanguageSettingKey] = t;
+            }
         }
 
-        // If language changed and not empty, ask user to restart so resources reload cleanly
-        if (!string.IsNullOrEmpty(newLang) && !string.Equals(prevLang, newLang, StringComparison.OrdinalIgnoreCase))
+        // If language changed (including selecting system default), ask user to restart so resources reload cleanly
+        if (!string.Equals(prevLang, newLang, StringComparison.OrdinalIgnoreCase))
         {
             try
             {
-                // Persist PrimaryLanguageOverride now so restart uses it
-                ApplicationLanguages.PrimaryLanguageOverride = newLang;
+                // Persist PrimaryLanguageOverride now so restart uses it and notify listeners
+                _localizationService.ApplyLanguage(newLang);
 
                 var dialog = new ContentDialog
                 {
@@ -132,13 +289,13 @@ public sealed partial class SettingsPage : Page
                     Content = "Settings_LanguageChange_Content".GetLocalized(),
                     PrimaryButtonText = "Settings_LanguageChange_Restart".GetLocalized(),
                     CloseButtonText = "Settings_LanguageChange_Later".GetLocalized(),
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = _themeSelectorService?.Theme ?? ElementTheme.Default
                 };
 
                 var res = await dialog.ShowAsync();
                 if (res == ContentDialogResult.Primary)
                 {
-                    // Restart application: start new process and exit current
                     try
                     {
                         var exe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
@@ -151,12 +308,8 @@ public sealed partial class SettingsPage : Page
                             });
                         }
                     }
-                    catch
-                    {
-                        // ignore
-                    }
+                    catch { }
 
-                    // Exit current process
                     Environment.Exit(0);
                 }
             }

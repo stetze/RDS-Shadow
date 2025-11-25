@@ -20,43 +20,134 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Linq;
 using System.Globalization;
+using Windows.Globalization;
 
 namespace RDS_Shadow.Views;
 
 public sealed partial class SessionsPage : Page
 {
     public SessionsViewModel ViewModel { get; }
+    private readonly ILocalizationService _localizationService;
+    private FrameworkElement? _lastRightClickTarget;
+
+    // Class-level helper to provide localization with fallback
+    private static string LocalizedOrDefault(string key, string deDefault, string enDefault)
+    {
+        var val = key.GetLocalized();
+        if (val == key)
+        {
+            // Prefer ApplicationLanguages.PrimaryLanguageOverride when set
+            try
+            {
+                var overrideLang = ApplicationLanguages.PrimaryLanguageOverride;
+                if (!string.IsNullOrEmpty(overrideLang))
+                {
+                    return overrideLang.StartsWith("de", StringComparison.OrdinalIgnoreCase) ? deDefault : enDefault;
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+
+            return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? deDefault : enDefault;
+        }
+        return val;
+    }
 
     public SessionsPage()
     {
         ViewModel = App.GetService<SessionsViewModel>();
+        _localizationService = App.GetService<ILocalizationService>();
+
         InitializeComponent();
 
-        // Localized helpers with fallback
-        static string LocalizedOrDefault(string key, string deDefault, string enDefault)
-        {
-            var val = key.GetLocalized();
-            if (val == key)
-            {
-                return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? deDefault : enDefault;
-            }
-            return val;
-        }
+        // Wire localization change
+        _localization_service_subscribe();
 
         // Set UI texts (use localization with fallback)
         colUsername.Header = LocalizedOrDefault("Sessions_Column_Username", "Benutzer", "Username");
         colPoolName.Header = LocalizedOrDefault("Sessions_Column_Pool", "Pool", "Pool");
         colServerName.Header = LocalizedOrDefault("Sessions_Column_Server", "Server", "Server");
+        colPoolName.Header = LocalizedOrDefault("Sessions_Column_PoolName", "Pool", "Pool");
+        colServerName.Header = LocalizedOrDefault("Sessions_Column_ServerName", "Server", "Server");
+        colClientName.Header = LocalizedOrDefault("Sessions_Column_ClientName", "Client", "Client");
         colSessionId.Header = LocalizedOrDefault("Sessions_Column_SessionId", "Sitzungs-ID", "SessionId");
 
-        ToolTipService.SetToolTip(refresh, new ToolTip { Content = LocalizedOrDefault("Sessions_Refresh_Tooltip", "Aktualisieren", "Refresh") });
-        filterUsername.PlaceholderText = LocalizedOrDefault("Sessions_Filter_Placeholder", "Filter (Benutzer oder Server)", "Filter (user or server)");
-        ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = LocalizedOrDefault("Sessions_SendAll_Tooltip", "Nachricht an alle angezeigten Nutzer senden", "Send message to all displayed users") });
+        ToolTipService.SetToolTip(refresh, new ToolTip { Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized() });
+        filterUsername.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized();
+        ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized() });
 
-        SendButton.Content = LocalizedOrDefault("Sessions_Message_Send_Button", "Senden", "Send");
+        if (refreshToolTip != null) refreshToolTip.Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized();
+        if (sendAllText != null) sendAllText.Text = "Sessions_SendMessageAllButton_Text".GetLocalized();
+        if (sendAllToolTip != null) sendAllToolTip.Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized();
+
+        if (menuLogoutItem != null) menuLogoutItem.Text = "Sessions_Context_Logout".GetLocalized();
+        if (menuSendMessageItem != null) menuSendMessageItem.Text = "Sessions_Context_SendMessage".GetLocalized();
+
+        if (messageTextBox != null) messageTextBox.PlaceholderText = "Sessions_MessageTextBox.PlaceholderText".GetLocalized();
+        if (SendButton != null) SendButton.Content = "Sessions_Message_Send_Button.Content".GetLocalized();
 
         // Ensure the list is populated automatically when the page is first shown
         Loaded += SessionsPage_Loaded;
+    }
+
+    private void _localization_service_subscribe()
+    {
+        _localizationService.LanguageChanged += LocalizationService_LanguageChanged;
+    }
+
+    private void LocalizationService_LanguageChanged(object? sender, System.EventArgs e)
+    {
+        Debug.WriteLine("SessionsPage: LanguageChanged received, re-localizing UI");
+
+        // Re-apply localized strings when language changes
+        void UpdateTexts()
+        {
+            // Update programmatically set values
+            colUsername.Header = "Sessions_Column_Username".GetLocalized();
+            colPoolName.Header = "Sessions_Column_PoolName".GetLocalized();
+            colServerName.Header = "Sessions_Column_ServerName".GetLocalized();
+            colClientName.Header = "Sessions_Column_ClientName".GetLocalized();
+            colSessionId.Header = "Sessions_Column_SessionId".GetLocalized();
+
+            if (refreshToolTip != null) refreshToolTip.Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized();
+            if (sendAllText != null) sendAllText.Text = "Sessions_SendMessageAllButton_Text".GetLocalized();
+            if (sendAllToolTip != null) sendAllToolTip.Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized();
+
+            if (menuLogoutItem != null) menuLogoutItem.Text = "Sessions_Context_Logout".GetLocalized();
+            if (menuSendMessageItem != null) menuSendMessageItem.Text = "Sessions_Context_SendMessage".GetLocalized();
+
+            if (messageTextBox != null) messageTextBox.PlaceholderText = "Sessions_MessageTextBox.PlaceholderText".GetLocalized();
+            if (SendButton != null) SendButton.Content = "Sessions_Message_Send_Button.Content".GetLocalized();
+
+            filterUsername.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized();
+        }
+
+        // Ensure update occurs on UI thread
+        _ = DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () => UpdateTexts());
+    }
+
+    private ElementTheme GetCurrentAppTheme()
+    {
+        try
+        {
+            if (App.MainWindow?.Content is FrameworkElement root)
+            {
+                return root.ActualTheme;
+            }
+        }
+        catch { }
+
+        // fallback to theme service
+        try
+        {
+            var svc = App.GetService<IThemeSelectorService>();
+            return svc?.Theme ?? ElementTheme.Default;
+        }
+        catch { }
+
+        return ElementTheme.Default;
     }
 
     private async void SessionsPage_Loaded(object? sender, RoutedEventArgs e)
@@ -322,8 +413,8 @@ public sealed partial class SessionsPage : Page
             catch (SqlException ex)
             {
                 // Show a friendly dialog to the user with localized text
-                var title = "Datenbank-Verbindungsfehler";
-                var content = "Es konnte keine Verbindung zur Datenbank hergestellt werden. Bitte prüfen Sie die Einstellungen und Ihre Netzwerkverbindung.";
+                var title = "Sessions_Error_DbConnection".GetLocalized();
+                var content = "Sessions_Error_DbConnection".GetLocalized();
 
                 content = content + "\n\n" + ex.Message;
 
@@ -331,9 +422,9 @@ public sealed partial class SessionsPage : Page
                 {
                     Title = title,
                     Content = content,
-                    CloseButtonText = "OK",
+                    CloseButtonText = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "OK" : "OK",
                     XamlRoot = this.XamlRoot,
-                    RequestedTheme = App.GetService<IThemeSelectorService>()?.Theme ?? ElementTheme.Default
+                    RequestedTheme = GetCurrentAppTheme()
                 };
 
                 await ShowContentDialogSerializedAsync(dialog);
@@ -343,11 +434,11 @@ public sealed partial class SessionsPage : Page
                 // Unexpected error: show generic dialog
                 var dialog = new ContentDialog
                 {
-                    Title = "Fehler",
+                    Title = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Fehler" : "Error",
                     Content = ex.Message,
-                    CloseButtonText = "OK",
+                    CloseButtonText = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "OK" : "OK",
                     XamlRoot = this.XamlRoot,
-                    RequestedTheme = App.GetService<IThemeSelectorService>()?.Theme ?? ElementTheme.Default
+                    RequestedTheme = GetCurrentAppTheme()
                 };
 
                 await ShowContentDialogSerializedAsync(dialog);
@@ -455,14 +546,15 @@ public sealed partial class SessionsPage : Page
         {
             // Setzen Sie die Auswahl manuell
             grid.SelectedItem = clickedRow;
+            _lastRightClickTarget = grid;
 
             // Zeigen Sie das Kontextmenü an
             var menu = new MenuFlyout();
-            var abmeldenItem = new MenuFlyoutItem { Text = "Abmelden" };
+            var abmeldenItem = new MenuFlyoutItem { Text = "Sessions_Context_Logout".GetLocalized() };
             abmeldenItem.Click += Abmelden_Click;
             menu.Items.Add(abmeldenItem);
 
-            var sendMessageItem = new MenuFlyoutItem { Text = "Nachricht senden" };
+            var sendMessageItem = new MenuFlyoutItem { Text = "Sessions_Context_SendMessage".GetLocalized() };
             sendMessageItem.Click += SendMessageToUser_Click;
             menu.Items.Add(sendMessageItem);
 
@@ -498,29 +590,32 @@ public sealed partial class SessionsPage : Page
     {
         if (shadowingView.SelectedItem is MyDataClass selectedRow)
         {
+            // Always open a ContentDialog for per-user messages so it matches the "send to all" dialog
             await ShowSendUserDialogAsync(selectedRow);
         }
     }
 
     private async Task ShowSendUserDialogAsync(MyDataClass user)
     {
+        // Use same layout as SendAll dialog: larger textbox
         var textBox = new TextBox
         {
             AcceptsReturn = true,
             TextWrapping = TextWrapping.Wrap,
-            Height = 180,
-            Width = 480,
-            PlaceholderText = "Nachricht eingeben..."
+            Height = 220,
+            Width = 520,
+            PlaceholderText = "Sessions_MessageAllTextBox.PlaceholderText".GetLocalized()
         };
 
+        var titleTemplate = LocalizedOrDefault("Sessions_MessageToUser_Title", "Nachricht an {0} ({1})", "Message to {0} ({1})");
         var dialog = new ContentDialog
         {
-            Title = $"Nachricht an {user.Username} ({user.ServerName})",
+            Title = string.Format(titleTemplate, user.Username, user.ServerName),
             Content = textBox,
-            PrimaryButtonText = "Senden",
-            CloseButtonText = "Abbrechen",
+            PrimaryButtonText = "Sessions_MessageAll_SendButton.Content".GetLocalized(),
+            CloseButtonText = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Abbrechen" : "Cancel",
             XamlRoot = this.XamlRoot,
-            RequestedTheme = App.GetService<Contracts.Services.IThemeSelectorService>()?.Theme ?? ElementTheme.Default
+            RequestedTheme = GetCurrentAppTheme()
         };
 
         var result = await ShowContentDialogSerializedAsync(dialog);
@@ -541,7 +636,9 @@ public sealed partial class SessionsPage : Page
             }
             catch (Exception ex)
             {
-                MyData.Add(new MyDataClass("Fehler", $"Nachricht an {user.Username} fehlgeschlagen: {ex.Message}", "", 0));
+                var err = "Sessions_Error_SendMessageUser".GetLocalized();
+                if (err == "Sessions_Error_SendMessageUser") err = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Nachricht an {0} fehlgeschlagen: {1}" : "Error sending message to {0}: {1}";
+                MyData.Add(new MyDataClass("Fehler", string.Format(err, user.Username, ex.Message), "", 0));
             }
         }
     }
@@ -563,11 +660,13 @@ public sealed partial class SessionsPage : Page
                 Process.Start(psi);
 
                 // Schließen Sie das Flyout nach dem Senden der Nachricht
-                messageFlyout.Hide();
+                messageFlyout?.Hide();
             }
             catch (Exception ex)
             {
-                MyData.Add(new MyDataClass("Fehler", $"Nachricht senden fehlgeschlagen: {ex.Message}", "", 0));
+                var err = "Sessions_Error_SendMessage".GetLocalized();
+                if (err == "Sessions_Error_SendMessage") err = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Fehler beim Senden der Nachricht: {0}" : "Error sending message: {0}";
+                MyData.Add(new MyDataClass("Fehler", string.Format(err, ex.Message), "", 0));
             }
         }
     }
@@ -585,17 +684,17 @@ public sealed partial class SessionsPage : Page
             TextWrapping = TextWrapping.Wrap,
             Height = 220,
             Width = 520,
-            PlaceholderText = "Nachricht eingeben..."
+            PlaceholderText = "Sessions_MessageAllTextBox.PlaceholderText".GetLocalized()
         };
 
         var dialog = new ContentDialog
         {
-            Title = "Nachricht an alle angezeigten Nutzer",
+            Title = "Sessions_MessageAllTitle.Text".GetLocalized(),
             Content = textBox,
-            PrimaryButtonText = "Senden",
-            CloseButtonText = "Abbrechen",
+            PrimaryButtonText = "Sessions_MessageAll_SendButton.Content".GetLocalized(),
+            CloseButtonText = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Abbrechen" : "Cancel",
             XamlRoot = this.XamlRoot,
-            RequestedTheme = App.GetService<IThemeSelectorService>()?.Theme ?? ElementTheme.Default
+            RequestedTheme = GetCurrentAppTheme()
         };
 
         var result = await ShowContentDialogSerializedAsync(dialog);
@@ -624,7 +723,9 @@ public sealed partial class SessionsPage : Page
                     }
                     catch (Exception ex)
                     {
-                        MyData.Add(new MyDataClass("Fehler", $"Nachricht an {user.Username} fehlgeschlagen: {ex.Message}", "", 0));
+                        var err = "Sessions_Error_SendAll".GetLocalized();
+                        if (err == "Sessions_Error_SendAll") err = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Fehler beim Senden an alle Nutzer: {0}" : "Error sending message to all users: {0}";
+                        MyData.Add(new MyDataClass("Fehler", string.Format(err, ex.Message), "", 0));
                     }
                 }
             }

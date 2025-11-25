@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
+using Windows.Storage;
 
 using RDS_Shadow.Activation;
 using RDS_Shadow.Contracts.Services;
@@ -61,6 +62,9 @@ public partial class App : Application
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
             services.AddTransient<INavigationViewService, NavigationViewService>();
 
+            // Localization service
+            services.AddSingleton<ILocalizationService, LocalizationService>();
+
             services.AddSingleton<IActivationService, ActivationService>();
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<INavigationService, NavigationService>();
@@ -80,6 +84,52 @@ public partial class App : Application
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
         }).
         Build();
+
+        // Wire language change to update main window title and refresh current page
+        var localization = GetService<ILocalizationService>();
+        localization.LanguageChanged += (s, e) =>
+        {
+            if (MainWindow != null)
+            {
+                MainWindow.Title = "AppDisplayName".GetLocalized();
+            }
+
+            // Try to refresh the currently displayed page so XAML x:Uid resources reapply.
+            try
+            {
+                var navigationService = GetService<INavigationService>();
+                var frame = navigationService.Frame;
+                var vm = frame?.GetPageViewModel();
+                if (vm != null)
+                {
+                    var vmKey = vm.GetType().FullName!;
+                    // Use a changing parameter to force the NavigationService to recreate the page
+                    navigationService.NavigateTo(vmKey, parameter: System.Guid.NewGuid().ToString());
+                }
+            }
+            catch
+            {
+                // ignore refresh failures
+            }
+        };
+
+        // Apply previously saved language setting on startup (if present)
+        try
+        {
+            if (ApplicationData.Current?.LocalSettings?.Values != null && ApplicationData.Current.LocalSettings.Values.TryGetValue("LanguageSetting", out var langObj) && langObj is string langStr && !string.IsNullOrWhiteSpace(langStr))
+            {
+                localization.ApplyLanguage(langStr);
+            }
+            else
+            {
+                // If setting is absent or empty, ensure LocalizationService uses system default (no override)
+                localization.ApplyLanguage(string.Empty);
+            }
+        }
+        catch
+        {
+            // ignore failures applying saved language
+        }
 
         UnhandledException += App_UnhandledException;
     }
