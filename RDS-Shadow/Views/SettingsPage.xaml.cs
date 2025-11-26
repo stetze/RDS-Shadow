@@ -20,6 +20,12 @@ public sealed partial class SettingsPage : Page
     private readonly ILocalizationService _localizationService;
     private readonly IThemeSelectorService _themeSelectorService;
 
+    // Track the language that was selected when the page was loaded so we only trigger a restart
+    // if the user actually changed the selection before pressing Save.
+    private string _initialSelectedLanguage = string.Empty;
+    private bool _hadStoredLanguage = false;
+    private string _systemLanguageAtLoad = string.Empty;
+
     public SettingsViewModel ViewModel
     {
         get;
@@ -147,7 +153,12 @@ public sealed partial class SettingsPage : Page
             Settings_IncludeClientNameCheckBox.IsChecked = false;
         }
 
+        // Determine system fallback tag used for initial selection
+        _systemLanguageAtLoad = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "de-DE" : "en-US";
+
         // Initialize language combobox selection
+        string selectedLang = string.Empty;
+        _hadStoredLanguage = false;
         if (ApplicationData.Current.LocalSettings.Values.TryGetValue(LanguageSettingKey, out var langObj) && langObj is string langStr)
         {
             // If stored value is empty (previously used system-default), remove it so it doesn't cause confusion
@@ -159,6 +170,7 @@ public sealed partial class SettingsPage : Page
 
             if (!string.IsNullOrEmpty(langStr))
             {
+                _hadStoredLanguage = true;
                 var found = false;
                 foreach (var obj in Settings_LanguageComboBox.Items)
                 {
@@ -179,13 +191,12 @@ public sealed partial class SettingsPage : Page
                     // Stored value doesn't match any available item -> remove and fallback to system language
                     ApplicationData.Current.LocalSettings.Values.Remove(LanguageSettingKey);
 
-                    var sysTag = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "de-DE" : "en-US";
                     foreach (var obj in Settings_LanguageComboBox.Items)
                     {
                         if (obj is ComboBoxItem item)
                         {
                             var tag = item.Tag as string ?? string.Empty;
-                            if (string.Equals(tag, sysTag, StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(tag, _systemLanguageAtLoad, StringComparison.OrdinalIgnoreCase))
                             {
                                 Settings_LanguageComboBox.SelectedItem = item;
                                 found = true;
@@ -199,18 +210,19 @@ public sealed partial class SettingsPage : Page
                         Settings_LanguageComboBox.SelectedIndex = 0;
                     }
                 }
+
+                selectedLang = langStr;
             }
             else
             {
                 // No stored language -> pick best guess from system language
-                var sysTag = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "de-DE" : "en-US";
                 var found = false;
                 foreach (var obj in Settings_LanguageComboBox.Items)
                 {
                     if (obj is ComboBoxItem item)
                     {
                         var tag = item.Tag as string ?? string.Empty;
-                        if (string.Equals(tag, sysTag, StringComparison.OrdinalIgnoreCase))
+                        if (string.Equals(tag, _systemLanguageAtLoad, StringComparison.OrdinalIgnoreCase))
                         {
                             Settings_LanguageComboBox.SelectedItem = item;
                             found = true;
@@ -223,19 +235,21 @@ public sealed partial class SettingsPage : Page
                 {
                     Settings_LanguageComboBox.SelectedIndex = 0;
                 }
+
+                // For initial selection, treat empty stored value as empty (system default)
+                selectedLang = string.Empty;
             }
         }
         else
         {
             // No saved value at all -> pick best guess from system language
-            var sysTag = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "de-DE" : "en-US";
             var found = false;
             foreach (var obj in Settings_LanguageComboBox.Items)
             {
                 if (obj is ComboBoxItem item)
                 {
                     var tag = item.Tag as string ?? string.Empty;
-                    if (string.Equals(tag, sysTag, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(tag, _systemLanguageAtLoad, StringComparison.OrdinalIgnoreCase))
                     {
                         Settings_LanguageComboBox.SelectedItem = item;
                         found = true;
@@ -248,7 +262,13 @@ public sealed partial class SettingsPage : Page
             {
                 Settings_LanguageComboBox.SelectedIndex = 0;
             }
+
+            // No stored language -> initial selection is empty (system default)
+            selectedLang = string.Empty;
         }
+
+        // Save the initial selection so we can detect real user changes on Save
+        _initialSelectedLanguage = selectedLang;
     }
 
     private async void Settings_Database_Click(object sender, RoutedEventArgs e)
@@ -263,20 +283,31 @@ public sealed partial class SettingsPage : Page
         string newLang = string.Empty;
         if (Settings_LanguageComboBox.SelectedItem is ComboBoxItem sel && sel.Tag is string t)
         {
-            newLang = t;
-            if (string.IsNullOrWhiteSpace(newLang))
+            // If there was no stored language initially and the selected tag equals the system fallback,
+            // treat this as "no change" and keep stored value empty.
+            if (!_hadStoredLanguage && string.Equals(t, _systemLanguageAtLoad, StringComparison.OrdinalIgnoreCase))
             {
-                // User selected system default: remove stored override to fall back to system
+                // keep newLang empty to represent system default
+                newLang = string.Empty;
                 ApplicationData.Current.LocalSettings.Values.Remove(LanguageSettingKey);
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values[LanguageSettingKey] = t;
+                newLang = t;
+                if (string.IsNullOrWhiteSpace(newLang))
+                {
+                    // User selected system default explicitly: remove stored override
+                    ApplicationData.Current.LocalSettings.Values.Remove(LanguageSettingKey);
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values[LanguageSettingKey] = t;
+                }
             }
         }
 
-        // If language changed (including selecting system default), ask user to restart so resources reload cleanly
-        if (!string.Equals(prevLang, newLang, StringComparison.OrdinalIgnoreCase))
+        // Only consider language "changed" if the user actually changed the selection since the page loaded
+        if (!string.Equals(_initialSelectedLanguage, newLang, StringComparison.OrdinalIgnoreCase))
         {
             try
             {
