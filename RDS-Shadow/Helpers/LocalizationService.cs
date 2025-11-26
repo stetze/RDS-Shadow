@@ -4,6 +4,7 @@ using System.Threading;
 using Windows.ApplicationModel.Resources.Core;
 using Windows.Globalization;
 using System.Diagnostics;
+using Microsoft.UI.Dispatching;
 
 namespace RDS_Shadow.Helpers
 {
@@ -50,9 +51,26 @@ namespace RDS_Shadow.Helpers
                 Debug.WriteLine($"LocalizationService: PrimaryLanguageOverride set to {languageTag}");
             }
 
-            // Notify listeners
+            // Notify listeners - dispatch to UI queue if available to avoid reentrancy during startup
             Debug.WriteLine("LocalizationService: raising LanguageChanged event");
-            LanguageChanged?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                var dq = DispatcherQueue.GetForCurrentThread();
+                if (dq != null)
+                {
+                    dq.TryEnqueue(() => LanguageChanged?.Invoke(this, EventArgs.Empty));
+                }
+                else
+                {
+                    // fallback: raise on thread pool
+                    ThreadPool.QueueUserWorkItem(_ => LanguageChanged?.Invoke(this, EventArgs.Empty));
+                }
+            }
+            catch
+            {
+                // last-resort synchronous invoke
+                LanguageChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 }

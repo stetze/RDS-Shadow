@@ -156,7 +156,7 @@ public static class ResourceExtensions
                         var doc = XDocument.Load(path);
                         var data = doc.Root?.Elements()
                             .Where(x => x.Name.LocalName == "data")
-                            .FirstOrDefault(x => (string)x.Attribute("name") == resourceKey);
+                            .FirstOrDefault(x => string.Equals(x.Attribute("name")?.Value, resourceKey, StringComparison.Ordinal));
 
                         var val = data?.Elements().FirstOrDefault(x => x.Name.LocalName == "value")?.Value;
                         if (!string.IsNullOrEmpty(val))

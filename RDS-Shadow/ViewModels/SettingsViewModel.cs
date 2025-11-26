@@ -17,11 +17,19 @@ public partial class SettingsViewModel : ObservableRecipient
 {
     private readonly IThemeSelectorService _themeSelectorService;
 
-    [ObservableProperty]
     private ElementTheme _elementTheme;
+    public ElementTheme ElementTheme
+    {
+        get => _elementTheme;
+        set => SetProperty(ref _elementTheme, value);
+    }
 
-    [ObservableProperty]
-    private string _versionDescription;
+    private string _versionDescription = string.Empty;
+    public string VersionDescription
+    {
+        get => _versionDescription;
+        set => SetProperty(ref _versionDescription, value);
+    }
 
     public ICommand SwitchThemeCommand
     {
@@ -31,8 +39,8 @@ public partial class SettingsViewModel : ObservableRecipient
     public SettingsViewModel(IThemeSelectorService themeSelectorService)
     {
         _themeSelectorService = themeSelectorService;
-        _elementTheme = _themeSelectorService.Theme;
-        _versionDescription = GetVersionDescription();
+        ElementTheme = _themeSelectorService.Theme;
+        VersionDescription = GetVersionDescription();
 
         SwitchThemeCommand = new RelayCommand<ElementTheme>(
             async (param) =>

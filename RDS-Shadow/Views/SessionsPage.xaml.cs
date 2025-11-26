@@ -162,9 +162,9 @@ public sealed partial class SessionsPage : Page
 
     public class MyDataClass : INotifyPropertyChanged
     {
-        private string _username;
-        private string _poolName;
-        private string _serverName;
+        private string _username = string.Empty;
+        private string _poolName = string.Empty;
+        private string _serverName = string.Empty;
         private int _sessionId;
         private string _clientName = string.Empty;
 
@@ -178,9 +178,9 @@ public sealed partial class SessionsPage : Page
 
         public MyDataClass(string userName, string poolName, string serverName, int sessionId)
         {
-            Username = userName;
-            PoolName = poolName;
-            ServerName = serverName;
+            Username = userName ?? string.Empty;
+            PoolName = poolName ?? string.Empty;
+            ServerName = serverName ?? string.Empty;
             SessionId = sessionId;
             ClientName = string.Empty;
         }

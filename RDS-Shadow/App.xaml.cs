@@ -39,7 +39,20 @@ public partial class App : Application
         return service;
     }
 
-    public static WindowEx MainWindow { get; } = new MainWindow();
+    private static WindowEx? _mainWindow;
+
+    public static WindowEx MainWindow
+    {
+        get
+        {
+            if (_mainWindow is null)
+            {
+                _mainWindow = new MainWindow();
+            }
+
+            return _mainWindow;
+        }
+    }
 
     public static UIElement? AppTitlebar { get; set; }
 

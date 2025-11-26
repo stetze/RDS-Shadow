@@ -13,7 +13,7 @@
   <Identity
     Name="63273stetze.RDS-Shadow"
     Publisher="CN=D59F340D-0444-48EF-A755-9C19D91350BA"
-    Version="1.0.15.0" />
+    Version="1.0.16.0" />
     
   <mp:PhoneIdentity PhoneProductId="02693662-383d-4508-8f56-0c9767026f29" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
     
@@ -73,3 +73,5 @@
     <genTemplate:Item Name="appmodel" Value="Desktop" />
   </genTemplate:Metadata>
 </Package>
+
+

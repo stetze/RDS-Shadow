@@ -7,13 +7,21 @@ using RDS_Shadow.Views;
 
 namespace RDS_Shadow.ViewModels;
 
-public partial class ShellViewModel : ObservableRecipient
+public class ShellViewModel : ObservableRecipient
 {
-    [ObservableProperty]
-    private bool isBackEnabled;
+    private bool _isBackEnabled;
+    public bool IsBackEnabled
+    {
+        get => _isBackEnabled;
+        set => SetProperty(ref _isBackEnabled, value);
+    }
 
-    [ObservableProperty]
-    private object? selected;
+    private object? _selected;
+    public object? Selected
+    {
+        get => _selected;
+        set => SetProperty(ref _selected, value);
+    }
 
     public INavigationService NavigationService
     {
