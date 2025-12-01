@@ -1,5 +1,64 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -46,7 +105,6 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -59,7 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
   <data name="Sessions_RefreshButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Refresh</value>
   </data>
@@ -81,31 +138,69 @@
   <data name="Sessions_Message_SendButton.Content" xml:space="preserve">
     <value>Send</value>
   </data>
-  <data name="Sessions_Column_Username" xml:space="preserve"><value>Username</value></data>
-  <data name="Sessions_Column_PoolName" xml:space="preserve"><value>Pool</value></data>
-  <data name="Sessions_Column_ServerName" xml:space="preserve"><value>Server</value></data>
-  <data name="Sessions_Column_SessionId" xml:space="preserve"><value>Session ID</value></data>
-  <data name="Sessions_Context_Logout" xml:space="preserve"><value>Sign out</value></data>
-  <data name="Sessions_Context_SendMessage" xml:space="preserve"><value>Send message</value></data>
-  <data name="Sessions_Error_DbConnection" xml:space="preserve"><value>Unable to connect to the database. Please check your settings or network connection.</value></data>
-  <data name="Sessions_Warn_NoUsers" xml:space="preserve"><value>There are no users in the current view.</value></data>
-  <data name="Sessions_Error_SendMessage" xml:space="preserve"><value>Error sending message: {0}</value></data>
-  <data name="Sessions_Error_SendMessageUser" xml:space="preserve"><value>Error sending message to {0}: {1}</value></data>
-  <data name="Sessions_Error_SendAll" xml:space="preserve"><value>Error sending message to all users: {0}</value></data>
-  <data name="Sessions_MessageToUser_Title" xml:space="preserve"><value>Message to {0} ({1})</value></data>
-
-  <data name="Settings_SQLServer.PlaceholderText" xml:space="preserve"><value>Enter SQL Server name</value></data>
-  <data name="Settings_Databasename.PlaceholderText" xml:space="preserve"><value>Enter database name</value></data>
-  <data name="Settings_Database_SaveButton.Content" xml:space="preserve"><value>Save</value></data>
-  <data name="Settings_IncludeClientName.Content" xml:space="preserve"><value>Include client name</value></data>
-  <data name="Settings_Language.Text" xml:space="preserve"><value>Language</value></data>
-  <data name="Settings_Language_SystemDefault.Content" xml:space="preserve"><value>System default</value></data>
-  <data name="Sessions_Column_ClientName" xml:space="preserve"><value>Client</value></data>
-  <data name="Sessions_Column_Pool" xml:space="preserve"><value>Pool</value></data>
-  <data name="Sessions_Column_Server" xml:space="preserve"><value>Server</value></data>
-  <data name="Settings_OtherSettings" xml:space="preserve"><value>Other settings</value></data>
-
-  <!-- Existing resources preserved -->
+  <data name="Sessions_Column_Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="Sessions_Column_PoolName" xml:space="preserve">
+    <value>Pool</value>
+  </data>
+  <data name="Sessions_Column_ServerName" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="Sessions_Column_SessionId" xml:space="preserve">
+    <value>Session ID</value>
+  </data>
+  <data name="Sessions_Context_Logout" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Sessions_Context_SendMessage" xml:space="preserve">
+    <value>Send message</value>
+  </data>
+  <data name="Sessions_Error_DbConnection" xml:space="preserve">
+    <value>Unable to connect to the database. Please check your settings or network connection.</value>
+  </data>
+  <data name="Sessions_Warn_NoUsers" xml:space="preserve">
+    <value>There are no users in the current view.</value>
+  </data>
+  <data name="Sessions_Error_SendMessage" xml:space="preserve">
+    <value>Error sending message: {0}</value>
+  </data>
+  <data name="Sessions_Error_SendMessageUser" xml:space="preserve">
+    <value>Error sending message to {0}: {1}</value>
+  </data>
+  <data name="Sessions_Error_SendAll" xml:space="preserve">
+    <value>Error sending message to all users: {0}</value>
+  </data>
+  <data name="Sessions_MessageToUser_Title" xml:space="preserve">
+    <value>Message to {0} ({1})</value>
+  </data>
+  <data name="Settings_SQLServer.PlaceholderText" xml:space="preserve">
+    <value>Enter the SQL server name</value>
+  </data>
+  <data name="Settings_Databasename.PlaceholderText" xml:space="preserve">
+    <value>Enter the database name</value>
+  </data>
+  <data name="Settings_Database_SaveButton.Content" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Settings_Language.Text" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_Language_SystemDefault.Content" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="Sessions_Column_ClientName" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="Sessions_Column_Pool" xml:space="preserve">
+    <value>Pool</value>
+  </data>
+  <data name="Sessions_Column_Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="Settings_OtherSettings.Text" xml:space="preserve">
+    <value>Advanced settings</value>
+  </data>
   <data name="AppDisplayName" xml:space="preserve">
     <value>RDS-Shadow</value>
   </data>
@@ -113,7 +208,7 @@
     <value>RDS-Shadow</value>
   </data>
   <data name="Shell_Sessions.Content" xml:space="preserve">
-    <value>Sessions</value>
+    <value>Sessions RD Connection Broker</value>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
     <value>Personalization</value>
@@ -134,7 +229,7 @@
     <value>About this application</value>
   </data>
   <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>Enables you to remotely control an active session of another user on a Remote Desktop Session Host server.</value>
+    <value>Enables you to remotely control an active session of another user on a Remote Desktop Session Host server. © 2024-205 Daniel Stetzenbach. All rights reserved.</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
     <value>Privacy Statement</value>
@@ -143,20 +238,108 @@
     <value>https://github.com/stetze/RDS-Shadow/wiki/Privacy-Policy</value>
   </data>
   <data name="Settings_Database.Text" xml:space="preserve">
-    <value>Database settings</value>
+    <value>RD Connection Broker</value>
   </data>
-  <!-- Language change dialog -->
-  <data name="Settings_LanguageChange_Title" xml:space="preserve"><value>Language changed</value></data>
-  <data name="Settings_LanguageChange_Content" xml:space="preserve"><value>The language has been changed. Do you want to restart the application now to apply the changes?</value></data>
-  <data name="Settings_LanguageChange_Restart" xml:space="preserve"><value>Restart now</value></data>
-  <data name="Settings_LanguageChange_Later" xml:space="preserve"><value>Later</value></data>
-
-  <!-- Generic labels -->
-  <data name="Settings_Language_English.Content" xml:space="preserve"><value>English (United States)</value></data>
-  <data name="Settings_Language_German.Content" xml:space="preserve"><value>Deutsch (Germany)</value></data>
-
-  <!-- Sessions page additional keys -->
-  <data name="Sessions_SendMessageAllButton_Text" xml:space="preserve"><value>Notify all</value></data>
-  <data name="Sessions_MessageTextBox.PlaceholderText" xml:space="preserve"><value>Enter message...</value></data>
-  <data name="Sessions_Message_Send_Button.Content" xml:space="preserve"><value>Send</value></data>
+  <data name="Settings_LanguageChange_Title" xml:space="preserve">
+    <value>Language changed</value>
+  </data>
+  <data name="Settings_LanguageChange_Content" xml:space="preserve">
+    <value>The language has been changed. Do you want to restart the application now to apply the changes?</value>
+  </data>
+  <data name="Settings_LanguageChange_Restart" xml:space="preserve">
+    <value>Restart now</value>
+  </data>
+  <data name="Settings_LanguageChange_Later" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="Settings_Language_English.Content" xml:space="preserve">
+    <value>English (United States)</value>
+  </data>
+  <data name="Settings_Language_German.Content" xml:space="preserve">
+    <value>Deutsch (Germany)</value>
+  </data>
+  <data name="Sessions_SendMessageAllButton_Text" xml:space="preserve">
+    <value>Notify all</value>
+  </data>
+  <data name="Sessions_MessageTextBox.PlaceholderText" xml:space="preserve">
+    <value>Enter message...</value>
+  </data>
+  <data name="Sessions_Message_Send_Button.Content" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Settings_TSSettings.Text" xml:space="preserve">
+    <value>Terminal Servers</value>
+  </data>
+  <data name="Settings_TSName.PlaceholderText" xml:space="preserve">
+    <value>Enter the terminal server name</value>
+  </data>
+  <data name="Shell_SessionsTS.Content" xml:space="preserve">
+    <value>Sessions Terminalserver</value>
+  </data>
+  <data name="settingsIncludeClientCard.Header" xml:space="preserve">
+    <value>Prompt for client name</value>
+  </data>
+  <data name="settingsThemeCard.Header" xml:space="preserve">
+    <value>App theme</value>
+  </data>
+  <data name="settingsThemeCard.Description" xml:space="preserve">
+    <value>Select which app theme to display.</value>
+  </data>
+  <data name="settingsAboutExpander.Description" xml:space="preserve">
+    <value>Enables you to remotely control an active session of another user on a Remote Desktop Session Host server. © 2024-2025 Daniel Stetzenbach. All rights reserved.</value>
+  </data>
+  <data name="Settings_RepoCommand.Text" xml:space="preserve">
+    <value>git clone https://github.com/stetze/RDS-Shadow.git</value>
+  </data>
+  <data name="settingsLanguageCard.Header" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="settingsIncludeClientCard.Description" xml:space="preserve">
+    <value>Automatically retrieves the client names of users logged on to the terminal servers and displays them in the session list.</value>
+  </data>
+  <data name="settingsTSCard.Header" xml:space="preserve">
+    <value>For terminal servers that are not discovered via the RD Connection Broker.</value>
+  </data>
+  <data name="settingsSQLServerCard.Header" xml:space="preserve">
+    <value>SQL server name</value>
+  </data>
+  <data name="settingsSQLServerCard.Description" xml:space="preserve">
+    <value>Name of the SQL Server running the RD Connection Broker database.</value>
+  </data>
+  <data name="settingsSQLDBCard.Description" xml:space="preserve">
+    <value>Name of the RD Connection Broker database.</value>
+  </data>
+  <data name="settingsSQLDBCard.Header" xml:space="preserve">
+    <value>Database name</value>
+  </data>
+  <data name="settingsTSCard.Description" xml:space="preserve">
+    <value>Multiple terminal servers possible, separated by commas</value>
+  </data>
+  <data name="Settings_SqlServer_ClearProceed" xml:space="preserve">
+    <value>Proceed</value>
+  </data>
+  <data name="Settings_SqlServer_ClearCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Settings_TSname_ClearProceed" xml:space="preserve">
+    <value>Proceed</value>
+  </data>
+  <data name="Settings_TSname_ClearCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Settings_Database_ClearProceed" xml:space="preserve">
+    <value>Proceed</value>
+  </data>
+  <data name="Settings_Database_ClearCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Settings_SqlServer_ClearWarning" xml:space="preserve">
+    <value>Are you sure you want to delete the data?</value>
+  </data>
+  <data name="Settings_Database_ClearWarning" xml:space="preserve">
+    <value>Are you sure you want to delete the data?</value>
+  </data>
+  <data name="Settings_TSname_ClearWarning" xml:space="preserve">
+    <value>Are you sure you want to delete the data?</value>
+  </data>
 </root>

@@ -46,6 +46,13 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe748;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+
+                <!-- Template Studio SessionsTS (Terminal Services) page -->
+                <NavigationViewItem Margin="0,0,0,0" x:Uid="Shell_SessionsTS" Tag="Shell_SessionsTS.Content" helpers:NavigationHelper.NavigateTo="RDS_Shadow.ViewModels.SessionsTSViewModel">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe748;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.HeaderTemplate>
                 <DataTemplate>

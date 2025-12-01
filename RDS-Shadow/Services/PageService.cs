@@ -16,6 +16,8 @@ public class PageService : IPageService
     {
         Configure<SessionsViewModel, SessionsPage>();
         Configure<SettingsViewModel, SettingsPage>();
+        // Add SessionsTS page mapping so it appears in navigation and can be navigated to
+        Configure<SessionsTSViewModel, SessionsTSPage>();
     }
 
     public Type GetPageType(string key)
