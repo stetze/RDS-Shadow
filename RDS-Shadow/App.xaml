@@ -10,6 +10,20 @@
                 <ResourceDictionary Source="/Styles/Thickness.xaml" />
                 <ResourceDictionary Source="/Styles/TextBlock.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <!-- App-specific brushes (theme-aware) -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <!-- light theme: subtle surface color -->
+                    <SolidColorBrush x:Key="SessionsBarBackgroundBrush" Color="#FFF2F2F2" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <!-- dark theme: subtle surface color -->
+                    <SolidColorBrush x:Key="SessionsBarBackgroundBrush" Color="#FF1F1F1F" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="SessionsBarBackgroundBrush" Color="#00FFFFFF" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

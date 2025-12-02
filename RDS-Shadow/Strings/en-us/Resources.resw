@@ -124,10 +124,10 @@
     <value>Enter filter text</value>
   </data>
   <data name="Sessions_SendMessageAllButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Send message to current users</value>
+    <value>Sends a message to all users currently displayed in the list.</value>
   </data>
   <data name="Sessions_MessageAllTitle.Text" xml:space="preserve">
-    <value>Message to current users</value>
+    <value>Notify users in the list</value>
   </data>
   <data name="Sessions_MessageAllTextBox.PlaceholderText" xml:space="preserve">
     <value>Enter message here...</value>
@@ -149,12 +149,6 @@
   </data>
   <data name="Sessions_Column_SessionId" xml:space="preserve">
     <value>Session ID</value>
-  </data>
-  <data name="Sessions_Context_Logout" xml:space="preserve">
-    <value>Sign out</value>
-  </data>
-  <data name="Sessions_Context_SendMessage" xml:space="preserve">
-    <value>Send message</value>
   </data>
   <data name="Sessions_Error_DbConnection" xml:space="preserve">
     <value>Unable to connect to the database. Please check your settings or network connection.</value>
@@ -192,12 +186,6 @@
   <data name="Sessions_Column_ClientName" xml:space="preserve">
     <value>Client</value>
   </data>
-  <data name="Sessions_Column_Pool" xml:space="preserve">
-    <value>Pool</value>
-  </data>
-  <data name="Sessions_Column_Server" xml:space="preserve">
-    <value>Server</value>
-  </data>
   <data name="Settings_OtherSettings.Text" xml:space="preserve">
     <value>Advanced settings</value>
   </data>
@@ -208,7 +196,7 @@
     <value>RDS-Shadow</value>
   </data>
   <data name="Shell_Sessions.Content" xml:space="preserve">
-    <value>Sessions RD Connection Broker</value>
+    <value>RD Connection Broker</value>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
     <value>Personalization</value>
@@ -227,9 +215,6 @@
   </data>
   <data name="Settings_About.Text" xml:space="preserve">
     <value>About this application</value>
-  </data>
-  <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>Enables you to remotely control an active session of another user on a Remote Desktop Session Host server. © 2024-205 Daniel Stetzenbach. All rights reserved.</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
     <value>Privacy Statement</value>
@@ -274,7 +259,7 @@
     <value>Enter the terminal server name</value>
   </data>
   <data name="Shell_SessionsTS.Content" xml:space="preserve">
-    <value>Sessions Terminalserver</value>
+    <value>Terminal Servers</value>
   </data>
   <data name="settingsIncludeClientCard.Header" xml:space="preserve">
     <value>Prompt for client name</value>
@@ -341,5 +326,47 @@
   </data>
   <data name="Settings_TSname_ClearWarning" xml:space="preserve">
     <value>Are you sure you want to delete the data?</value>
+  </data>
+  <data name="Sessions_Error_Quser_Title" xml:space="preserve">
+    <value>Error querying sessions</value>
+  </data>
+  <data name="Sessions_Error_Quser_Content" xml:space="preserve">
+    <value>Error querying sessions.</value>
+  </data>
+  <data name="Settings_TSSettings_Hint" xml:space="preserve">
+    <value>For terminal servers that are not discovered via the RD Connection Broker.</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Common_WarningTitle" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Sessions_Title" xml:space="preserve">
+    <value>RD Connection Broker</value>
+  </data>
+  <data name="Sessions_Title_InfoText" xml:space="preserve">
+    <value>The listed sessions are provided by the RD Connection Broker database.</value>
+  </data>
+  <data name="Sessions_Title_InfoLink" xml:space="preserve">
+    <value>More information</value>
+  </data>
+  <data name="Sessions_LogoutFailed" xml:space="preserve">
+    <value>Sign out failed: {0}</value>
+  </data>
+  <data name="Sessions_NoUsers" xml:space="preserve">
+    <value>No users available.</value>
+  </data>
+  <data name="Sessions_Context_Logout.Text" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Sessions_Context_SendMessage.Text" xml:space="preserve">
+    <value>Send message</value>
   </data>
 </root>

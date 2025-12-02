@@ -64,18 +64,14 @@ public sealed partial class SessionsTSPage : Page
 
         // Set UI texts (use localization with fallback)
         colUsername.Header = LocalizedOrDefault("Sessions_Column_Username", "Benutzer", "Username");
-        colServerName.Header = LocalizedOrDefault("Sessions_Column_Server", "Server", "Server");
         colServerName.Header = LocalizedOrDefault("Sessions_Column_ServerName", "Server", "Server");
         colClientName.Header = LocalizedOrDefault("Sessions_Column_ClientName", "Client", "Client");
         colSessionId.Header = LocalizedOrDefault("Sessions_Column_SessionId", "Sitzungs-ID", "SessionId");
 
         ToolTipService.SetToolTip(refresh, new ToolTip { Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized() });
-        filterUsername.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized();
+        try { tbSearch.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized(); } catch { }
         ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized() });
-
-        if (refreshToolTip != null) refreshToolTip.Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized();
         if (sendAllText != null) sendAllText.Text = "Sessions_SendMessageAllButton_Text".GetLocalized();
-        if (sendAllToolTip != null) sendAllToolTip.Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized();
 
         if (menuLogoutItem != null) menuLogoutItem.Text = "Sessions_Context_Logout".GetLocalized();
         if (menuSendMessageItem != null) menuSendMessageItem.Text = "Sessions_Context_SendMessage".GetLocalized();
@@ -105,9 +101,9 @@ public sealed partial class SessionsTSPage : Page
             colClientName.Header = "Sessions_Column_ClientName".GetLocalized();
             colSessionId.Header = "Sessions_Column_SessionId".GetLocalized();
 
-            if (refreshToolTip != null) refreshToolTip.Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized();
+            ToolTipService.SetToolTip(refresh, new ToolTip { Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized() });
             if (sendAllText != null) sendAllText.Text = "Sessions_SendMessageAllButton_Text".GetLocalized();
-            if (sendAllToolTip != null) sendAllToolTip.Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized();
+            ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized() });
 
             if (menuLogoutItem != null) menuLogoutItem.Text = "Sessions_Context_Logout".GetLocalized();
             if (menuSendMessageItem != null) menuSendMessageItem.Text = "Sessions_Context_SendMessage".GetLocalized();
@@ -115,7 +111,7 @@ public sealed partial class SessionsTSPage : Page
             if (messageTextBox != null) messageTextBox.PlaceholderText = "Sessions_MessageTextBox.PlaceholderText".GetLocalized();
             if (SendButton != null) SendButton.Content = "Sessions_Message_Send_Button.Content".GetLocalized();
 
-            filterUsername.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized();
+            try { tbSearch.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized(); } catch { }
         }
 
         // Ensure update occurs on UI thread
@@ -522,9 +518,9 @@ public sealed partial class SessionsTSPage : Page
         {
             var propertyName = binding.Path.Path;
 
-            var itemsToSort = string.IsNullOrEmpty(filterUsername.Text)
+            var itemsToSort = string.IsNullOrEmpty(tbSearch?.Text)
                 ? MyData
-                : new ObservableCollection<MyDataClass>(MyData.Where(item => item.Username.IndexOf(filterUsername.Text, StringComparison.OrdinalIgnoreCase) >= 0));
+                : new ObservableCollection<MyDataClass>(MyData.Where(item => item.Username.IndexOf(tbSearch.Text, StringComparison.OrdinalIgnoreCase) >= 0));
 
             var sortedItems = propertyName switch
             {
@@ -562,6 +558,16 @@ public sealed partial class SessionsTSPage : Page
         ApplyFilter();
     }
 
+    private void tbSearch_TextChanged(Microsoft.UI.Xaml.Controls.AutoSuggestBox sender, Microsoft.UI.Xaml.Controls.AutoSuggestBoxTextChangedEventArgs e)
+    {
+        try { ApplyFilter(); } catch { }
+    }
+
+    private void tbSearch_QuerySubmitted(Microsoft.UI.Xaml.Controls.AutoSuggestBox sender, Microsoft.UI.Xaml.Controls.AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        try { ApplyFilter(); } catch { }
+    }
+
     private string currentFilter = string.Empty;
 
     private async void RefreshButton_Click(object sender, RoutedEventArgs e)
@@ -572,7 +578,7 @@ public sealed partial class SessionsTSPage : Page
 
     private void ApplyFilter()
     {
-        currentFilter = filterUsername.Text;
+        currentFilter = tbSearch?.Text ?? string.Empty;
 
         if (string.IsNullOrEmpty(currentFilter))
         {

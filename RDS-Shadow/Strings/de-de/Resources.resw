@@ -124,10 +124,10 @@
     <value>Filtertext eingeben</value>
   </data>
   <data name="Sessions_SendMessageAllButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Nachricht an aktuelle Benutzer senden</value>
+    <value>Sendet eine Nachricht an alle Benutzer, die aktuell in der Liste angezeigt werden.</value>
   </data>
   <data name="Sessions_MessageAllTitle.Text" xml:space="preserve">
-    <value>Nachricht an aktuelle Benutzer</value>
+    <value>Benutzer in der Liste benachrichtigen</value>
   </data>
   <data name="Sessions_MessageAllTextBox.PlaceholderText" xml:space="preserve">
     <value>Nachricht hier eingeben...</value>
@@ -149,12 +149,6 @@
   </data>
   <data name="Sessions_Column_SessionId" xml:space="preserve">
     <value>Sitzungs-ID</value>
-  </data>
-  <data name="Sessions_Context_Logout" xml:space="preserve">
-    <value>Abmelden</value>
-  </data>
-  <data name="Sessions_Context_SendMessage" xml:space="preserve">
-    <value>Nachricht senden</value>
   </data>
   <data name="Sessions_Error_DbConnection" xml:space="preserve">
     <value>Leider konnte keine Verbindung zu Ihrer Datenbank hergestellt werden. Bitte kontrollieren Sie Ihre Daten in den Einstellungen bzw. prüfen Ihre Netzwerkverbindung.</value>
@@ -192,12 +186,6 @@
   <data name="Sessions_Column_ClientName" xml:space="preserve">
     <value>Client</value>
   </data>
-  <data name="Sessions_Column_Pool" xml:space="preserve">
-    <value>Pool</value>
-  </data>
-  <data name="Sessions_Column_Server" xml:space="preserve">
-    <value>Server</value>
-  </data>
   <data name="Settings_OtherSettings.Text" xml:space="preserve">
     <value>Erweiterte Einstellungen</value>
   </data>
@@ -208,7 +196,7 @@
     <value>RDS-Shadow</value>
   </data>
   <data name="Shell_Sessions.Content" xml:space="preserve">
-    <value>Sessions RD-Verbindungsbroker</value>
+    <value>RD-Verbindungsbroker</value>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
     <value>Personalisierung</value>
@@ -227,9 +215,6 @@
   </data>
   <data name="Settings_About.Text" xml:space="preserve">
     <value>Über diese Anwendung</value>
-  </data>
-  <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>Ermöglicht Ihnen die Fernsteuerung einer aktiven Sitzung eines anderen Benutzers auf einem Remotedesktop-Sitzungshost-Server.</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
     <value>Datenschutzrichtlinie</value>
@@ -274,7 +259,7 @@
     <value>Terminalservernamen eingeben</value>
   </data>
   <data name="Shell_SessionsTS.Content" xml:space="preserve">
-    <value>Sessions Terminalserver</value>
+    <value>Terminalserver</value>
   </data>
   <data name="settingsIncludeClientCard.Header" xml:space="preserve">
     <value>Clientname abfragen</value>
@@ -286,7 +271,7 @@
     <value>Wählen Sie aus, welches App-Design angezeigt werden soll.</value>
   </data>
   <data name="settingsAboutExpander.Description" xml:space="preserve">
-    <value>Ermöglicht Ihnen die Fernsteuerung einer aktiven Sitzung eines anderen Benutzers auf einem Remotedesktop-Sitzungshost-Server. © 2024-2025 Daniel Stetzenbach. Alle rechte vorbehalten.</value>
+    <value>Ermöglicht Ihnen die Fernsteuerung einer aktiven Sitzung eines anderen Benutzers auf einem Remotedesktop-Sitzungshost-Server. © 2024-2025 Daniel Stetzenbach. Alle Rechte vorbehalten.</value>
   </data>
   <data name="Settings_RepoCommand.Text" xml:space="preserve">
     <value>git clone https://github.com/stetze/RDS-Shadow.git</value>
@@ -341,5 +326,47 @@
   </data>
   <data name="Settings_TSname_ClearWarning" xml:space="preserve">
     <value>Möchten Sie die Daten wirklich löschen?</value>
+  </data>
+  <data name="Sessions_Error_Quser_Title" xml:space="preserve">
+    <value>Fehler beim Abfragen von Sitzungen</value>
+  </data>
+  <data name="Sessions_Error_Quser_Content" xml:space="preserve">
+    <value>Fehler beim Abfragen der Sitzungen.</value>
+  </data>
+  <data name="Settings_TSSettings_Hint" xml:space="preserve">
+    <value>Für Terminalserver, die nicht über den RD‑Verbindungsbroker ermittelt werden.</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="Common_ErrorTitle" xml:space="preserve">
+    <value>Fehler</value>
+  </data>
+  <data name="Common_WarningTitle" xml:space="preserve">
+    <value>Warnung</value>
+  </data>
+  <data name="Sessions_Title" xml:space="preserve">
+    <value>RD-Verbindungsbroker</value>
+  </data>
+  <data name="Sessions_Title_InfoText" xml:space="preserve">
+    <value>Die aufgeführten Sitzungen stammen aus der RD‑Verbindungsbroker‑Datenbank.</value>
+  </data>
+  <data name="Sessions_Title_InfoLink" xml:space="preserve">
+    <value>Weitere Informationen</value>
+  </data>
+  <data name="Sessions_LogoutFailed" xml:space="preserve">
+    <value>Abmelden fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Sessions_NoUsers" xml:space="preserve">
+    <value>Keine Nutzer verfügbar.</value>
+  </data>
+  <data name="Sessions_Context_Logout.Text" xml:space="preserve">
+    <value>Abmelden</value>
+  </data>
+  <data name="Sessions_Context_SendMessage.Text" xml:space="preserve">
+    <value>Nachricht senden</value>
   </data>
 </root>

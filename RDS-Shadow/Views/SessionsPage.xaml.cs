@@ -67,26 +67,15 @@ public sealed partial class SessionsPage : Page
 
         // Set UI texts (use localization with fallback)
         colUsername.Header = LocalizedOrDefault("Sessions_Column_Username", "Benutzer", "Username");
-        colPoolName.Header = LocalizedOrDefault("Sessions_Column_Pool", "Pool", "Pool");
-        colServerName.Header = LocalizedOrDefault("Sessions_Column_Server", "Server", "Server");
         colPoolName.Header = LocalizedOrDefault("Sessions_Column_PoolName", "Pool", "Pool");
         colServerName.Header = LocalizedOrDefault("Sessions_Column_ServerName", "Server", "Server");
         colClientName.Header = LocalizedOrDefault("Sessions_Column_ClientName", "Client", "Client");
         colSessionId.Header = LocalizedOrDefault("Sessions_Column_SessionId", "Sitzungs-ID", "SessionId");
 
         ToolTipService.SetToolTip(refresh, new ToolTip { Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized() });
-        filterUsername.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized();
+        try { tbSearch.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized(); } catch { }
         ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized() });
-
-        if (refreshToolTip != null) refreshToolTip.Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized();
         if (sendAllText != null) sendAllText.Text = "Sessions_SendMessageAllButton_Text".GetLocalized();
-        if (sendAllToolTip != null) sendAllToolTip.Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized();
-
-        if (menuLogoutItem != null) menuLogoutItem.Text = "Sessions_Context_Logout".GetLocalized();
-        if (menuSendMessageItem != null) menuSendMessageItem.Text = "Sessions_Context_SendMessage".GetLocalized();
-
-        if (messageTextBox != null) messageTextBox.PlaceholderText = "Sessions_MessageTextBox.PlaceholderText".GetLocalized();
-        if (SendButton != null) SendButton.Content = "Sessions_Message_Send_Button.Content".GetLocalized();
 
         // Ensure the list is populated automatically when the page is first shown
         Loaded += SessionsPage_Loaded;
@@ -111,9 +100,8 @@ public sealed partial class SessionsPage : Page
             colClientName.Header = "Sessions_Column_ClientName".GetLocalized();
             colSessionId.Header = "Sessions_Column_SessionId".GetLocalized();
 
-            if (refreshToolTip != null) refreshToolTip.Content = "Sessions_RefreshButton.ToolTipService.ToolTip".GetLocalized();
             if (sendAllText != null) sendAllText.Text = "Sessions_SendMessageAllButton_Text".GetLocalized();
-            if (sendAllToolTip != null) sendAllToolTip.Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized();
+            ToolTipService.SetToolTip(sendMessageToAllUser, new ToolTip { Content = "Sessions_SendMessageAllButton.ToolTipService.ToolTip".GetLocalized() });
 
             if (menuLogoutItem != null) menuLogoutItem.Text = "Sessions_Context_Logout".GetLocalized();
             if (menuSendMessageItem != null) menuSendMessageItem.Text = "Sessions_Context_SendMessage".GetLocalized();
@@ -121,7 +109,7 @@ public sealed partial class SessionsPage : Page
             if (messageTextBox != null) messageTextBox.PlaceholderText = "Sessions_MessageTextBox.PlaceholderText".GetLocalized();
             if (SendButton != null) SendButton.Content = "Sessions_Message_Send_Button.Content".GetLocalized();
 
-            filterUsername.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized();
+            try { tbSearch.PlaceholderText = "Sessions_FilterTextBox.PlaceholderText".GetLocalized(); } catch { }
         }
 
         // Ensure update occurs on UI thread
@@ -422,7 +410,7 @@ public sealed partial class SessionsPage : Page
                 {
                     Title = title,
                     Content = content,
-                    CloseButtonText = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "OK" : "OK",
+                    CloseButtonText = "Common_Ok".GetLocalized(),
                     XamlRoot = this.XamlRoot,
                     RequestedTheme = GetCurrentAppTheme()
                 };
@@ -434,9 +422,9 @@ public sealed partial class SessionsPage : Page
                 // Unexpected error: show generic dialog
                 var dialog = new ContentDialog
                 {
-                    Title = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Fehler" : "Error",
+                    Title = "Common_ErrorTitle".GetLocalized(),
                     Content = ex.Message,
-                    CloseButtonText = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "OK" : "OK",
+                    CloseButtonText = "Common_Ok".GetLocalized(),
                     XamlRoot = this.XamlRoot,
                     RequestedTheme = GetCurrentAppTheme()
                 };
@@ -452,9 +440,9 @@ public sealed partial class SessionsPage : Page
         {
             var propertyName = binding.Path.Path;
 
-            var itemsToSort = string.IsNullOrEmpty(filterUsername.Text)
+            var itemsToSort = string.IsNullOrEmpty(tbSearch?.Text)
                 ? MyData
-                : new ObservableCollection<MyDataClass>(MyData.Where(item => item.Username.IndexOf(filterUsername.Text, StringComparison.OrdinalIgnoreCase) >= 0));
+                : new ObservableCollection<MyDataClass>(MyData.Where(item => item.Username.IndexOf(tbSearch.Text, StringComparison.OrdinalIgnoreCase) >= 0));
 
             var sortedItems = propertyName switch
             {
@@ -488,9 +476,14 @@ public sealed partial class SessionsPage : Page
         }
     }
 
-    private void filterUsername_TextChanged(object sender, TextChangedEventArgs e)
+    private void tbSearch_TextChanged(Microsoft.UI.Xaml.Controls.AutoSuggestBox sender, Microsoft.UI.Xaml.Controls.AutoSuggestBoxTextChangedEventArgs e)
     {
-        ApplyFilter();
+        try { ApplyFilter(); } catch { }
+    }
+
+    private void tbSearch_QuerySubmitted(Microsoft.UI.Xaml.Controls.AutoSuggestBox sender, Microsoft.UI.Xaml.Controls.AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        try { ApplyFilter(); } catch { }
     }
 
     private string currentFilter = string.Empty;
@@ -503,7 +496,7 @@ public sealed partial class SessionsPage : Page
 
     private void ApplyFilter()
     {
-        currentFilter = filterUsername.Text;
+        currentFilter = tbSearch?.Text ?? string.Empty;
 
         if (string.IsNullOrEmpty(currentFilter))
         {
@@ -581,7 +574,7 @@ public sealed partial class SessionsPage : Page
             }
             catch (Exception ex)
             {
-                MyData.Add(new MyDataClass("Fehler", $"Abmelden fehlgeschlagen: {ex.Message}", "", 0));
+                MyData.Add(new MyDataClass("Common_ErrorTitle".GetLocalized(), string.Format("Sessions_LogoutFailed".GetLocalized(), ex.Message), "", 0));
             }
         }
     }
@@ -638,7 +631,7 @@ public sealed partial class SessionsPage : Page
             {
                 var err = "Sessions_Error_SendMessageUser".GetLocalized();
                 if (err == "Sessions_Error_SendMessageUser") err = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Nachricht an {0} fehlgeschlagen: {1}" : "Error sending message to {0}: {1}";
-                MyData.Add(new MyDataClass("Fehler", string.Format(err, user.Username, ex.Message), "", 0));
+                MyData.Add(new MyDataClass("Common_ErrorTitle".GetLocalized(), string.Format(err, user.Username, ex.Message), "", 0));
             }
         }
     }
@@ -666,7 +659,7 @@ public sealed partial class SessionsPage : Page
             {
                 var err = "Sessions_Error_SendMessage".GetLocalized();
                 if (err == "Sessions_Error_SendMessage") err = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Fehler beim Senden der Nachricht: {0}" : "Error sending message: {0}";
-                MyData.Add(new MyDataClass("Fehler", string.Format(err, ex.Message), "", 0));
+                MyData.Add(new MyDataClass("Common_ErrorTitle".GetLocalized(), string.Format(err, ex.Message), "", 0));
             }
         }
     }
@@ -725,13 +718,13 @@ public sealed partial class SessionsPage : Page
                     {
                         var err = "Sessions_Error_SendAll".GetLocalized();
                         if (err == "Sessions_Error_SendAll") err = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "de" ? "Fehler beim Senden an alle Nutzer: {0}" : "Error sending message to all users: {0}";
-                        MyData.Add(new MyDataClass("Fehler", string.Format(err, ex.Message), "", 0));
+                        MyData.Add(new MyDataClass("Common_ErrorTitle".GetLocalized(), string.Format(err, ex.Message), "", 0));
                     }
                 }
             }
             else
             {
-                MyData.Add(new MyDataClass("Warnung", "Keine Nutzer verfügbar.", "", 0));
+                MyData.Add(new MyDataClass("Common_WarningTitle".GetLocalized(), "Sessions_NoUsers".GetLocalized(), "", 0));
             }
         }
     }

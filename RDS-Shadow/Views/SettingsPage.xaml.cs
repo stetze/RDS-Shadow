@@ -26,8 +26,8 @@ public sealed partial class SettingsPage : Page
     // Track the language that was selected when the page was loaded so we only trigger a restart
     // if the user actually changed the selection before pressing Save.
     private string _initialSelectedLanguage = string.Empty;
-    private bool _hadStoredLanguage = false;
-    private string _systemLanguageAtLoad = string.Empty;
+
+    private string _systemLanguageAtLoad = string.Empty; // Track system language at page load
 
     // Track current applied language tag (e.g. "en-US" or "de-DE") to allow reverting if user cancels
     private string _currentLanguageTag = string.Empty;
@@ -174,7 +174,6 @@ public sealed partial class SettingsPage : Page
 
             // Initialize language selection in the top combobox
             string selectedLang = string.Empty;
-            _hadStoredLanguage = false;
 
             if (SettingsLanguageComboBox != null)
             {
@@ -188,7 +187,6 @@ public sealed partial class SettingsPage : Page
 
                     if (!string.IsNullOrEmpty(langStr))
                     {
-                        _hadStoredLanguage = true;
                         var found = false;
                         foreach (var obj in SettingsLanguageComboBox.Items)
                         {
